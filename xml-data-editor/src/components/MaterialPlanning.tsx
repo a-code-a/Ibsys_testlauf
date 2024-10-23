@@ -50,6 +50,21 @@ interface MaterialPlanningProps {
   warehousestock: any;
 }
 
+const OperatorCell = ({ children }: { children: React.ReactNode }) => (
+  <TableCell 
+    align="center" 
+    sx={{ 
+      width: '30px', 
+      padding: '0',
+      fontSize: '20px',
+      fontWeight: 'bold',
+      color: '#666'
+    }}
+  >
+    {children}
+  </TableCell>
+);
+
 export default function MaterialPlanning({ forecast, warehousestock }: MaterialPlanningProps) {
   const [tabValue, setTabValue] = useState(0);
   
@@ -95,11 +110,17 @@ export default function MaterialPlanning({ forecast, warehousestock }: MaterialP
           <TableRow>
             <TableCell>Produkt</TableCell>
             <TableCell>Auftrag</TableCell>
+            <OperatorCell>+</OperatorCell>
             <TableCell>Vorherige Warteschlange</TableCell>
+            <OperatorCell>+</OperatorCell>
             <TableCell>Sicherheitsbestand</TableCell>
+            <OperatorCell>-</OperatorCell>
             <TableCell>Lagerbestand</TableCell>
+            <OperatorCell>-</OperatorCell>
             <TableCell>Warteschlange</TableCell>
+            <OperatorCell>-</OperatorCell>
             <TableCell>Laufende Arbeiten</TableCell>
+            <OperatorCell>=</OperatorCell>
             <TableCell>Produktionsaufträge</TableCell>
           </TableRow>
         </TableHead>
@@ -114,36 +135,42 @@ export default function MaterialPlanning({ forecast, warehousestock }: MaterialP
                   disabled
                 />
               </TableCell>
+              <OperatorCell>+</OperatorCell>
               <TableCell>
                 <TextField 
                   value={row.vorherige}
                   size="small"
                 />
               </TableCell>
+              <OperatorCell>+</OperatorCell>
               <TableCell>
                 <TextField 
                   value={row.sicherheit}
                   size="small"
                 />
               </TableCell>
+              <OperatorCell>-</OperatorCell>
               <TableCell>
                 <TextField 
                   value={row.lager}
                   size="small"
                 />
               </TableCell>
+              <OperatorCell>-</OperatorCell>
               <TableCell>
                 <TextField 
                   value={row.warteschlange}
                   size="small"
                 />
               </TableCell>
+              <OperatorCell>-</OperatorCell>
               <TableCell>
                 <TextField 
                   value={row.laufend}
                   size="small"
                 />
               </TableCell>
+              <OperatorCell>=</OperatorCell>
               <TableCell>
                 <TextField 
                   value={row.produktion}
