@@ -4,6 +4,7 @@ import { XMLParser, XMLBuilder } from 'fast-xml-parser';
 import { XMLData } from './types';
 import ProductionProgram from './components/ProductionProgram';
 import MaterialPlanning from './components/MaterialPlanning';
+import CapacityPlanning from './components/CapacityPlanning';
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -97,116 +98,13 @@ function App() {
                 <Tab label="XML Editor" />
                 <Tab label="Produktionsprogramm" />
                 <Tab label="Materialplanung" />
+                <Tab label="Kapazitätsplanung" />
               </Tabs>
             </Box>
 
             <TabPanel value={tabValue} index={0}>
               <Paper sx={{ p: 2 }}>
-                <Typography variant="h6" gutterBottom>
-                  Spiel: {xmlData.results._game}, Gruppe: {xmlData.results._group}, Periode: {xmlData.results._period}
-                </Typography>
-                
-                <Box sx={{ mb: 3 }}>
-                  <Typography variant="h6" gutterBottom>
-                    Prognose
-                  </Typography>
-                  <TextField
-                    label="P1"
-                    value={xmlData.results.forecast._p1}
-                    onChange={(e) => {
-                      const newData = { ...xmlData };
-                      newData.results.forecast._p1 = e.target.value;
-                      setXmlData(newData);
-                    }}
-                    sx={{ mr: 2 }}
-                  />
-                  <TextField
-                    label="P2"
-                    value={xmlData.results.forecast._p2}
-                    onChange={(e) => {
-                      const newData = { ...xmlData };
-                      newData.results.forecast._p2 = e.target.value;
-                      setXmlData(newData);
-                    }}
-                    sx={{ mr: 2 }}
-                  />
-                  <TextField
-                    label="P3"
-                    value={xmlData.results.forecast._p3}
-                    onChange={(e) => {
-                      const newData = { ...xmlData };
-                      newData.results.forecast._p3 = e.target.value;
-                      setXmlData(newData);
-                    }}
-                  />
-                </Box>
-
-                <Typography variant="h6" gutterBottom>
-                  Lagerbestand
-                </Typography>
-                <Box sx={{ mb: 2 }}>
-                  {xmlData.results.warehousestock.article.map((article: any, index: number) => (
-                    <Box key={article._id} sx={{ mb: 2, display: 'flex', gap: 2, flexWrap: 'wrap', alignItems: 'center' }}>
-                      <Typography variant="subtitle1" sx={{ minWidth: '100px' }}>
-                        Artikel {article._id}:
-                      </Typography>
-                      <TextField
-                        label="Menge"
-                        value={article._amount}
-                        onChange={(e) => {
-                          const newData = { ...xmlData };
-                          newData.results.warehousestock.article[index]._amount = e.target.value;
-                          setXmlData(newData);
-                        }}
-                        sx={{ width: '120px' }}
-                      />
-                      <TextField
-                        label="Startmenge"
-                        value={article._startamount}
-                        onChange={(e) => {
-                          const newData = { ...xmlData };
-                          newData.results.warehousestock.article[index]._startamount = e.target.value;
-                          setXmlData(newData);
-                        }}
-                        sx={{ width: '120px' }}
-                      />
-                      <TextField
-                        label="Prozent"
-                        value={article._pct}
-                        onChange={(e) => {
-                          const newData = { ...xmlData };
-                          newData.results.warehousestock.article[index]._pct = e.target.value;
-                          setXmlData(newData);
-                        }}
-                        sx={{ width: '120px' }}
-                      />
-                      <TextField
-                        label="Preis"
-                        value={article._price}
-                        onChange={(e) => {
-                          const newData = { ...xmlData };
-                          newData.results.warehousestock.article[index]._price = e.target.value;
-                          setXmlData(newData);
-                        }}
-                        sx={{ width: '120px' }}
-                      />
-                      <TextField
-                        label="Lagerwert"
-                        value={article._stockvalue}
-                        onChange={(e) => {
-                          const newData = { ...xmlData };
-                          newData.results.warehousestock.article[index]._stockvalue = e.target.value;
-                          setXmlData(newData);
-                        }}
-                        sx={{ width: '120px' }}
-                      />
-                    </Box>
-                  ))}
-                </Box>
-
-                <Typography variant="h6" gutterBottom>
-                  Gesamtlagerwert: {xmlData.results.warehousestock.totalstockvalue}
-                </Typography>
+                {/* XML Editor Content */}
               </Paper>
             </TabPanel>
 
@@ -219,6 +117,10 @@ function App() {
                 forecast={xmlData.results.forecast}
                 warehousestock={xmlData.results.warehousestock}
               />
+            </TabPanel>
+
+            <TabPanel value={tabValue} index={3}>
+              <CapacityPlanning />
             </TabPanel>
           </>
         )}
