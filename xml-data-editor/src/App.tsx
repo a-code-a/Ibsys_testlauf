@@ -6,6 +6,8 @@ import ProductionProgram from './components/ProductionProgram';
 import MaterialPlanning from './components/MaterialPlanning';
 import CapacityPlanning from './components/CapacityPlanning';
 import ProcurementPlanning from './components/ProcurementPlanning';
+import ProductionPlanning from './components/ProductionPlanning';
+import Results from './components/Results';
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -101,6 +103,8 @@ function App() {
                 <Tab label="Materialplanung" />
                 <Tab label="Kapazitätsplanung" />
                 <Tab label="Beschaffungsplanung" />
+                <Tab label="Produktionsplanung" />
+                <Tab label="Ergebnis" />
               </Tabs>
             </Box>
 
@@ -127,6 +131,14 @@ function App() {
 
             <TabPanel value={tabValue} index={4}>
               <ProcurementPlanning />
+            </TabPanel>
+
+            <TabPanel value={tabValue} index={5}>
+              <ProductionPlanning />
+            </TabPanel>
+
+            <TabPanel value={tabValue} index={6}>
+              <Results />
             </TabPanel>
           </>
         )}
