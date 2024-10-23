@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { Box, Container, Paper, Button, Typography, TextField, Tabs, Tab } from '@mui/material';
+import { Box, Container, Paper, Button, Typography, Tabs, Tab } from '@mui/material';
 import { XMLParser, XMLBuilder } from 'fast-xml-parser';
 import { XMLData } from './types';
 import ProductionProgram from './components/ProductionProgram';
 import MaterialPlanning from './components/MaterialPlanning';
 import CapacityPlanning from './components/CapacityPlanning';
+import ProcurementPlanning from './components/ProcurementPlanning';
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -99,6 +100,7 @@ function App() {
                 <Tab label="Produktionsprogramm" />
                 <Tab label="Materialplanung" />
                 <Tab label="Kapazitätsplanung" />
+                <Tab label="Beschaffungsplanung" />
               </Tabs>
             </Box>
 
@@ -121,6 +123,10 @@ function App() {
 
             <TabPanel value={tabValue} index={3}>
               <CapacityPlanning />
+            </TabPanel>
+
+            <TabPanel value={tabValue} index={4}>
+              <ProcurementPlanning />
             </TabPanel>
           </>
         )}
