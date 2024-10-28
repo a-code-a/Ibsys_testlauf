@@ -30,42 +30,257 @@ interface ProductionItem {
 }
 
 export default function CapacityPlanning() {
+  const initWorkstations = () => {
+    const ws: {[key: number]: string} = {};
+    for (let i = 1; i <= 15; i++) {
+      ws[i] = "0";
+    }
+    return ws;
+  };
+
   const [productionItems, setProductionItems] = useState<ProductionItem[]>([
+    {
+      bezeichnung: "Hinterrad",
+      finalesProdukt: "P1",
+      artikelnummer: "E4",
+      produktionsmenge: "200",
+      workstations: {...initWorkstations()}
+    },
+    {
+      bezeichnung: "Hinterrad",
+      finalesProdukt: "P2",
+      artikelnummer: "E5",
+      produktionsmenge: "150",
+      workstations: {...initWorkstations()}
+    },
+    {
+      bezeichnung: "Hinterrad",
+      finalesProdukt: "P3",
+      artikelnummer: "E6",
+      produktionsmenge: "100",
+      workstations: {...initWorkstations()}
+    },
+    {
+      bezeichnung: "Forderrad",
+      finalesProdukt: "P1",
+      artikelnummer: "E7",
+      produktionsmenge: "200",
+      workstations: {...initWorkstations()}
+    },
+    {
+      bezeichnung: "Forderrad",
+      finalesProdukt: "P2",
+      artikelnummer: "E8",
+      produktionsmenge: "150",
+      workstations: {...initWorkstations()}
+    },
+    {
+      bezeichnung: "Forderrad",
+      finalesProdukt: "P3",
+      artikelnummer: "E9",
+      produktionsmenge: "100",
+      workstations: {...initWorkstations()}
+    },
+    {
+      bezeichnung: "Schutzblech hinten",
+      finalesProdukt: "P1",
+      artikelnummer: "E10",
+      produktionsmenge: "200",
+      workstations: {...initWorkstations(), 7: "400", 8: "200"}
+    },
+    {
+      bezeichnung: "Schutzblech hinten",
+      finalesProdukt: "P2",
+      artikelnummer: "E11",
+      produktionsmenge: "150",
+      workstations: {...initWorkstations(), 7: "300", 8: "150"}
+    },
+    {
+      bezeichnung: "Schutzblech hinten",
+      finalesProdukt: "P3",
+      artikelnummer: "E12",
+      produktionsmenge: "100",
+      workstations: {...initWorkstations(), 7: "200", 8: "100"}
+    },
+    {
+      bezeichnung: "Schutzblech vorne",
+      finalesProdukt: "P1",
+      artikelnummer: "E13",
+      produktionsmenge: "200",
+      workstations: {...initWorkstations(), 7: "400", 8: "200"}
+    },
+    {
+      bezeichnung: "Schutzblech vorne",
+      finalesProdukt: "P2",
+      artikelnummer: "E14",
+      produktionsmenge: "150",
+      workstations: {...initWorkstations(), 7: "300", 8: "150"}
+    },
+    {
+      bezeichnung: "Schutzblech vorne",
+      finalesProdukt: "P3",
+      artikelnummer: "E15",
+      produktionsmenge: "100",
+      workstations: {...initWorkstations(), 7: "200", 8: "100"}
+    },
+    {
+      bezeichnung: "Lenker",
+      finalesProdukt: "P1/P2/P",
+      artikelnummer: "E16",
+      produktionsmenge: "450",
+      workstations: {...initWorkstations(), 6: "900"}
+    },
+    {
+      bezeichnung: "Sattel",
+      finalesProdukt: "P1/P2/P",
+      artikelnummer: "E17",
+      produktionsmenge: "450",
+      workstations: {...initWorkstations()}
+    },
+    {
+      bezeichnung: "Rahmen",
+      finalesProdukt: "P1",
+      artikelnummer: "E18",
+      produktionsmenge: "200",
+      workstations: {...initWorkstations(), 6: "600", 7: "400", 8: "600"}
+    },
+    {
+      bezeichnung: "Rahmen",
+      finalesProdukt: "P2",
+      artikelnummer: "E19",
+      produktionsmenge: "150",
+      workstations: {...initWorkstations(), 6: "450", 7: "300", 8: "450"}
+    },
+    {
+      bezeichnung: "Rahmen",
+      finalesProdukt: "P3",
+      artikelnummer: "E20",
+      produktionsmenge: "100",
+      workstations: {...initWorkstations(), 6: "300", 7: "200", 8: "300"}
+    },
+    {
+      bezeichnung: "Pedale",
+      finalesProdukt: "P1/P2/P",
+      artikelnummer: "E26",
+      produktionsmenge: "450",
+      workstations: {...initWorkstations(), 7: "900"}
+    },
+    {
+      bezeichnung: "Vorderrad komplett",
+      finalesProdukt: "P1",
+      artikelnummer: "E49",
+      produktionsmenge: "200",
+      workstations: {...initWorkstations(), 1: "1200"}
+    },
+    {
+      bezeichnung: "Vorderrad komplett",
+      finalesProdukt: "P2",
+      artikelnummer: "E54",
+      produktionsmenge: "150",
+      workstations: {...initWorkstations(), 1: "900"}
+    },
+    {
+      bezeichnung: "Vorderrad komplett",
+      finalesProdukt: "P3",
+      artikelnummer: "E29",
+      produktionsmenge: "100",
+      workstations: {...initWorkstations(), 1: "600"}
+    },
     {
       bezeichnung: "Rahmen und Räder",
       finalesProdukt: "P1",
       artikelnummer: "E50",
       produktionsmenge: "200",
-      workstations: {
-        1: "1000", 2: "0", 3: "0", 4: "0", 5: "0", 6: "0", 7: "0", 8: "0",
-        9: "0", 10: "0", 11: "0", 12: "0", 13: "0", 14: "0", 15: "0"
-      }
+      workstations: {...initWorkstations(), 2: "1000"}
     },
     {
       bezeichnung: "Rahmen und Räder",
       finalesProdukt: "P2",
       artikelnummer: "E55",
       produktionsmenge: "150",
-      workstations: {
-        1: "750", 2: "0", 3: "0", 4: "0", 5: "0", 6: "0", 7: "0", 8: "0",
-        9: "0", 10: "0", 11: "0", 12: "0", 13: "0", 14: "0", 15: "0"
-      }
+      workstations: {...initWorkstations(), 2: "750"}
     },
     {
       bezeichnung: "Rahmen und Räder",
       finalesProdukt: "P3",
       artikelnummer: "E30",
       produktionsmenge: "100",
-      workstations: {
-        1: "500", 2: "0", 3: "0", 4: "0", 5: "0", 6: "0", 7: "0", 8: "0",
-        9: "0", 10: "0", 11: "0", 12: "0", 13: "0", 14: "0", 15: "0"
-      }
+      workstations: {...initWorkstations(), 2: "500"}
+    },
+    {
+      bezeichnung: "Fahrrad ohne Pedale",
+      finalesProdukt: "P1",
+      artikelnummer: "E51",
+      produktionsmenge: "200",
+      workstations: {...initWorkstations(), 3: "1000"}
+    },
+    {
+      bezeichnung: "Fahrrad ohne Pedale",
+      finalesProdukt: "P2",
+      artikelnummer: "E56",
+      produktionsmenge: "150",
+      workstations: {...initWorkstations(), 3: "900"}
+    },
+    {
+      bezeichnung: "Fahrrad ohne Pedale",
+      finalesProdukt: "P3",
+      artikelnummer: "E31",
+      produktionsmenge: "100",
+      workstations: {...initWorkstations(), 3: "600"}
+    },
+    {
+      bezeichnung: "Fahrrad komplett",
+      finalesProdukt: "P1",
+      artikelnummer: "P1",
+      produktionsmenge: "200",
+      workstations: {...initWorkstations(), 4: "1200"}
+    },
+    {
+      bezeichnung: "Fahrrad komplett",
+      finalesProdukt: "P2",
+      artikelnummer: "P2",
+      produktionsmenge: "150",
+      workstations: {...initWorkstations(), 4: "1050"}
+    },
+    {
+      bezeichnung: "Fahrrad komplett",
+      finalesProdukt: "P3",
+      artikelnummer: "P3",
+      produktionsmenge: "100",
+      workstations: {...initWorkstations(), 4: "700"}
     }
   ]);
 
   const [workstationData, setWorkstationData] = useState<WorkstationData[]>([
     {
       id: 1,
+      capacityRequirements: "2700",
+      setupTimes: "60",
+      capacityPreviousPeriods: "0",
+      totalCapacityRequirements: "2760",
+      overtimes: "360",
+      overtimePerDays: "72"
+    },
+    {
+      id: 2,
+      capacityRequirements: "2250",
+      setupTimes: "90",
+      capacityPreviousPeriods: "0",
+      totalCapacityRequirements: "2340",
+      overtimes: "0",
+      overtimePerDays: "0"
+    },
+    {
+      id: 3,
+      capacityRequirements: "2500",
+      setupTimes: "60",
+      capacityPreviousPeriods: "0",
+      totalCapacityRequirements: "2560",
+      overtimes: "160",
+      overtimePerDays: "32"
+    },
+    {
+      id: 4,
       capacityRequirements: "2950",
       setupTimes: "90",
       capacityPreviousPeriods: "0",
@@ -74,7 +289,7 @@ export default function CapacityPlanning() {
       overtimePerDays: "128"
     },
     {
-      id: 2,
+      id: 5,
       capacityRequirements: "0",
       setupTimes: "0",
       capacityPreviousPeriods: "0",
@@ -83,7 +298,7 @@ export default function CapacityPlanning() {
       overtimePerDays: "0"
     },
     {
-      id: 3,
+      id: 6,
       capacityRequirements: "2250",
       setupTimes: "60",
       capacityPreviousPeriods: "720",
@@ -92,7 +307,7 @@ export default function CapacityPlanning() {
       overtimePerDays: "126"
     },
     {
-      id: 4,
+      id: 7,
       capacityRequirements: "3600",
       setupTimes: "200",
       capacityPreviousPeriods: "3860",
@@ -101,7 +316,7 @@ export default function CapacityPlanning() {
       overtimePerDays: "1052"
     },
     {
-      id: 5,
+      id: 8,
       capacityRequirements: "2250",
       setupTimes: "180",
       capacityPreviousPeriods: "4020",
@@ -110,94 +325,67 @@ export default function CapacityPlanning() {
       overtimePerDays: "810"
     },
     {
-      id: 6,
-      capacityRequirements: "3600",
-      setupTimes: "135",
-      capacityPreviousPeriods: "5100",
-      totalCapacityRequirements: "8835",
-      overtimes: "6435",
-      overtimePerDays: "1287"
-    },
-    {
-      id: 7,
-      capacityRequirements: "3600",
-      setupTimes: "120",
-      capacityPreviousPeriods: "360",
-      totalCapacityRequirements: "4080",
-      overtimes: "1680",
-      overtimePerDays: "336"
-    },
-    {
-      id: 8,
-      capacityRequirements: "2700",
-      setupTimes: "120",
-      capacityPreviousPeriods: "1770",
-      totalCapacityRequirements: "4590",
-      overtimes: "2190",
-      overtimePerDays: "438"
-    },
-    {
       id: 9,
-      capacityRequirements: "2700",
+      capacityRequirements: "0",
       setupTimes: "0",
-      capacityPreviousPeriods: "2040",
-      totalCapacityRequirements: "4740",
-      overtimes: "2340",
-      overtimePerDays: "468"
+      capacityPreviousPeriods: "0",
+      totalCapacityRequirements: "0",
+      overtimes: "0",
+      overtimePerDays: "0"
     },
     {
       id: 10,
-      capacityRequirements: "1800",
+      capacityRequirements: "0",
       setupTimes: "0",
-      capacityPreviousPeriods: "760",
-      totalCapacityRequirements: "2560",
-      overtimes: "160",
-      overtimePerDays: "32"
+      capacityPreviousPeriods: "0",
+      totalCapacityRequirements: "0",
+      overtimes: "0",
+      overtimePerDays: "0"
     },
     {
       id: 11,
-      capacityRequirements: "1350",
+      capacityRequirements: "0",
       setupTimes: "0",
-      capacityPreviousPeriods: "180",
-      totalCapacityRequirements: "1530",
+      capacityPreviousPeriods: "0",
+      totalCapacityRequirements: "0",
       overtimes: "0",
       overtimePerDays: "0"
     },
     {
       id: 12,
-      capacityRequirements: "2700",
-      setupTimes: "30",
-      capacityPreviousPeriods: "840",
-      totalCapacityRequirements: "3570",
-      overtimes: "1170",
-      overtimePerDays: "234"
+      capacityRequirements: "0",
+      setupTimes: "0",
+      capacityPreviousPeriods: "0",
+      totalCapacityRequirements: "0",
+      overtimes: "0",
+      overtimePerDays: "0"
     },
     {
       id: 13,
-      capacityRequirements: "2700",
-      setupTimes: "30",
-      capacityPreviousPeriods: "840",
-      totalCapacityRequirements: "3570",
-      overtimes: "1170",
-      overtimePerDays: "234"
+      capacityRequirements: "0",
+      setupTimes: "0",
+      capacityPreviousPeriods: "0",
+      totalCapacityRequirements: "0",
+      overtimes: "0",
+      overtimePerDays: "0"
     },
     {
       id: 14,
-      capacityRequirements: "2700",
-      setupTimes: "30",
-      capacityPreviousPeriods: "840",
-      totalCapacityRequirements: "3570",
-      overtimes: "1170",
-      overtimePerDays: "234"
+      capacityRequirements: "0",
+      setupTimes: "0",
+      capacityPreviousPeriods: "0",
+      totalCapacityRequirements: "0",
+      overtimes: "0",
+      overtimePerDays: "0"
     },
     {
       id: 15,
-      capacityRequirements: "2700",
-      setupTimes: "30",
-      capacityPreviousPeriods: "840",
-      totalCapacityRequirements: "3570",
-      overtimes: "1170",
-      overtimePerDays: "234"
+      capacityRequirements: "0",
+      setupTimes: "0",
+      capacityPreviousPeriods: "0",
+      totalCapacityRequirements: "0",
+      overtimes: "0",
+      overtimePerDays: "0"
     }
   ]);
 
