@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Paper, 
   Table, 
@@ -11,6 +11,7 @@ import {
   Tab,
   Box
 } from '@mui/material';
+import { useWorkflowStore } from '../store/workflowStore';
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -28,23 +29,20 @@ function TabPanel(props: TabPanelProps) {
 }
 
 const Results: React.FC = () => {
+  const { setResultsData } = useWorkflowStore();
   const [tabValue, setTabValue] = useState(0);
 
-  const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
-    setTabValue(newValue);
-  };
-
-  const productionProgram = [
+  const [productionProgram] = useState([
     { artikel: 'P1', produktionsmenge: '200', direktverkauf: '0', verkaufsmenge: '0', verkaufspreis: '0', strafe: '0' },
     { artikel: 'P2', produktionsmenge: '150', direktverkauf: '0', verkaufsmenge: '0', verkaufspreis: '0', strafe: '0' },
     { artikel: 'P3', produktionsmenge: '100', direktverkauf: '0', verkaufsmenge: '0', verkaufspreis: '0', strafe: '0' }
-  ];
+  ]);
 
-  const orders = [
+  const [orders] = useState([
     { artikel: 'Nothing to order', menge: '', modus: '' }
-  ];
+  ]);
 
-  const productionPlanning = [
+  const [productionPlanning] = useState([
     { artikel: '16', menge: '130' },
     { artikel: '17', menge: '450' },
     { artikel: '26', menge: '270' },
@@ -52,9 +50,9 @@ const Results: React.FC = () => {
     { artikel: '14', menge: '40' },
     { artikel: '19', menge: '80' },
     { artikel: '4', menge: '200' }
-  ];
+  ]);
 
-  const capacityPlanning = [
+  const [capacityPlanning] = useState([
     { station: '1', uberstunden: '72', schicht: '1' },
     { station: '2', uberstunden: '0', schicht: '1' },
     { station: '3', uberstunden: '32', schicht: '1' },
@@ -70,15 +68,31 @@ const Results: React.FC = () => {
     { station: '13', uberstunden: '32', schicht: '1' },
     { station: '14', uberstunden: '0', schicht: '1' },
     { station: '15', uberstunden: '234', schicht: '1' }
-  ];
+  ]);
+
+  // Aktualisiere die Daten im Store
+  useEffect(() => {
+    const data = {
+      productionProgram,
+      orders,
+      productionPlanning,
+      capacityPlanning
+    };
+    console.log('Setze Results Daten:', data);
+    setResultsData(data);
+  }, [productionProgram, orders, productionPlanning, capacityPlanning, setResultsData]);
+
+  const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
+    setTabValue(newValue);
+  };
 
   return (
     <Paper sx={{ width: '100%' }}>
       <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
         <Tabs value={tabValue} onChange={handleTabChange}>
-          <Tab label="PRODUCTIONSPROGRAMM" />
+          <Tab label="PRODUKTIONSPROGRAMM" />
           <Tab label="BESTELLUNGEN" />
-          <Tab label="PRODUCTIONSPLANUNG" />
+          <Tab label="PRODUKTIONSPLANUNG" />
           <Tab label="KAPAZITÄTSPLANUNG" />
         </Tabs>
       </Box>

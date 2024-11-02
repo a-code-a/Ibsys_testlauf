@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Paper, 
   Table, 
@@ -14,6 +14,7 @@ import {
 } from '@mui/material';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
+import { useWorkflowStore } from '../store/workflowStore';
 
 interface OrderItem {
   id: string;
@@ -23,6 +24,7 @@ interface OrderItem {
 }
 
 export default function ProductionPlanning() {
+  const { setProductionPlanningData } = useWorkflowStore();
   const [orders, setOrders] = useState<OrderItem[]>([
     { id: '1', articleNumber: '16', amount: 130, selected: false },
     { id: '2', articleNumber: '17', amount: 450, selected: false },
@@ -39,6 +41,13 @@ export default function ProductionPlanning() {
     { id: '13', articleNumber: '6', amount: 40, selected: false },
     { id: '14', articleNumber: '29', amount: 100, selected: false }
   ]);
+
+  // Aktualisiere die Daten im Store
+  useEffect(() => {
+    const data = { orders };
+    console.log('Setze Production Planning Daten:', data);
+    setProductionPlanningData(data);
+  }, [orders, setProductionPlanningData]);
 
   const handleSplitOrder = () => {
     const newOrders = orders.flatMap(order => {

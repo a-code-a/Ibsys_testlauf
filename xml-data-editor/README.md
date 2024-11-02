@@ -1,46 +1,105 @@
-# Getting Started with Create React App
+# Supply Chain Management Tool
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Ein Workflow-basiertes Tool zur Verwaltung der Supply Chain mit verschiedenen Planungsschritten.
 
-## Available Scripts
+## Funktionen
 
-In the project directory, you can run:
+- Schrittweiser Workflow durch verschiedene Planungsphasen
+- Validierung der Eingaben in jedem Schritt
+- Zentrale Datenverwaltung
+- XML Import/Export
 
-### `npm start`
+## Workflow-Schritte
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+1. **Produktionsprogramm**
+   - Planung der Produktionsmengen
+   - Prognosen für verschiedene Perioden
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+2. **Materialplanung**
+   - Verwaltung von Lagerbeständen
+   - Berechnung von Produktionsaufträgen
 
-### `npm test`
+3. **Kapazitätsplanung**
+   - Workstation-Auslastung
+   - Überstundenplanung
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+4. **Beschaffungsplanung**
+   - Bestellmengen
+   - Lieferzeiten
 
-### `npm run build`
+5. **Produktionsplanung**
+   - Auftragsreihenfolge
+   - Produktionsmengen
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+6. **Ergebnisse**
+   - Übersicht aller Planungsergebnisse
+   - Exportmöglichkeit
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+## Technische Details
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+### Datenvalidierung
 
-### `npm run eject`
+Jeder Schritt verwendet Zod-Schemas zur Validierung der Eingaben:
+- Numerische Werte werden auf Gültigkeit geprüft
+- Pflichtfelder werden überprüft
+- Bereichsvalidierung für spezifische Werte
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+### Datenverwaltung
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+Die Daten werden zentral mit Zustand verwaltet:
+- Jeder Schritt hat seinen eigenen Datenzustand
+- Daten werden zwischen Schritten weitergegeben
+- Änderungen werden sofort gespeichert
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+### Navigation
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+- Vor- und Zurück-Navigation zwischen Schritten
+- Validierung vor dem Fortschreiten
+- Fehleranzeige bei ungültigen Daten
 
-## Learn More
+## Verwendung
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+1. XML-Datei hochladen
+2. Durch die Planungsschritte navigieren
+3. Daten in jedem Schritt eingeben/anpassen
+4. Validierung der Eingaben
+5. Zum nächsten Schritt weitergehen
+6. Am Ende die Ergebnisse exportieren
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+## Entwicklung
+
+### Installation
+
+```bash
+npm install
+```
+
+### Entwicklungsserver starten
+
+```bash
+npm start
+```
+
+### Neue Komponente hinzufügen
+
+1. Komponente in `src/components` erstellen
+2. Schema in `src/schemas` definieren
+3. Typen in `src/types` hinzufügen
+4. In den Workflow in `WorkflowContainer.tsx` integrieren
+
+### Validierung erweitern
+
+1. Schema in `validationSchemas.ts` definieren
+2. In `WorkflowContainer.tsx` zur Validierungslogik hinzufügen
+3. Fehlermeldungen anpassen
+
+## Projektstruktur
+
+```
+src/
+  ├── components/     # React-Komponenten
+  ├── schemas/       # Zod Validierungsschemas
+  ├── store/         # Zustand Store
+  ├── types/         # TypeScript Typen
+  ├── utils/         # Hilfsfunktionen
+  └── workflow/      # Workflow-Komponenten

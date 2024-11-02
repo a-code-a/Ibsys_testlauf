@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Paper, 
   Table, 
@@ -10,6 +10,7 @@ import {
   TextField,
   Typography
 } from '@mui/material';
+import { useWorkflowStore } from '../store/workflowStore';
 
 interface ProductionProgramProps {
   forecast: {
@@ -31,6 +32,7 @@ interface ProductData {
 }
 
 export default function ProductionProgram({ forecast }: ProductionProgramProps) {
+  const { setProductionProgramData } = useWorkflowStore();
   const [products, setProducts] = useState<ProductData[]>([
     {
       id: "P1",
@@ -64,6 +66,12 @@ export default function ProductionProgram({ forecast }: ProductionProgramProps) 
     }
   ]);
 
+  // Aktualisieren der Daten bei Änderungen und beim ersten Rendern
+  useEffect(() => {
+    console.log('Aktualisiere Produktionsprogramm-Daten:', { products });
+    setProductionProgramData({ products });
+  }, [products, setProductionProgramData]);
+
   const handleValueChange = (
     productId: string,
     period: string,
@@ -71,7 +79,7 @@ export default function ProductionProgram({ forecast }: ProductionProgramProps) 
     value: string
   ) => {
     setProducts(prevProducts => {
-      return prevProducts.map(product => {
+      const newProducts = prevProducts.map(product => {
         if (product.id === productId) {
           return {
             ...product,
@@ -86,6 +94,7 @@ export default function ProductionProgram({ forecast }: ProductionProgramProps) 
         }
         return product;
       });
+      return newProducts;
     });
   };
 

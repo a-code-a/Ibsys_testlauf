@@ -1,36 +1,56 @@
-import React, { useState } from 'react';
-import { Box, Container, Paper, Button, Typography, Tabs, Tab } from '@mui/material';
+import React, { useState, useEffect } from 'react';
+import { Box, Container, Paper, Button, Typography } from '@mui/material';
 import { XMLParser, XMLBuilder } from 'fast-xml-parser';
 import { XMLData } from './types';
-import ProductionProgram from './components/ProductionProgram';
-import MaterialPlanning from './components/MaterialPlanning';
-import CapacityPlanning from './components/CapacityPlanning';
-import ProcurementPlanning from './components/ProcurementPlanning';
-import ProductionPlanning from './components/ProductionPlanning';
-import Results from './components/Results';
-
-interface TabPanelProps {
-  children?: React.ReactNode;
-  index: number;
-  value: number;
-}
-
-function TabPanel(props: TabPanelProps) {
-  const { children, value, index, ...other } = props;
-  return (
-    <div role="tabpanel" hidden={value !== index} {...other}>
-      {value === index && <Box sx={{ p: 3 }}>{children}</Box>}
-    </div>
-  );
-}
+import { WorkflowContainer } from './workflow/WorkflowContainer';
+import { useWorkflowStore } from './store/workflowStore';
 
 function App() {
   const [xmlData, setXmlData] = useState<XMLData | null>(null);
-  const [tabValue, setTabValue] = useState(0);
+  const { setProductionProgramData } = useWorkflowStore();
 
-  const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
-    setTabValue(newValue);
-  };
+  // Initialisiere die Daten, wenn xmlData sich ändert
+  useEffect(() => {
+    if (xmlData?.results?.forecast) {
+      const initialProductionProgram = {
+        products: [
+          {
+            id: "P1",
+            name: "Kinderrad",
+            periods: {
+              "5": { sales: xmlData.results.forecast._p1, production: xmlData.results.forecast._p1 },
+              "6": { sales: "0", production: "0" },
+              "7": { sales: "0", production: "0" },
+              "8": { sales: "0", production: "0" }
+            }
+          },
+          {
+            id: "P2",
+            name: "Damenrad",
+            periods: {
+              "5": { sales: xmlData.results.forecast._p2, production: xmlData.results.forecast._p2 },
+              "6": { sales: "0", production: "0" },
+              "7": { sales: "0", production: "0" },
+              "8": { sales: "0", production: "0" }
+            }
+          },
+          {
+            id: "P3",
+            name: "Herrenrad",
+            periods: {
+              "5": { sales: xmlData.results.forecast._p3, production: xmlData.results.forecast._p3 },
+              "6": { sales: "0", production: "0" },
+              "7": { sales: "0", production: "0" },
+              "8": { sales: "0", production: "0" }
+            }
+          }
+        ]
+      };
+
+      console.log('Setze initiale Produktionsprogramm-Daten:', initialProductionProgram);
+      setProductionProgramData(initialProductionProgram);
+    }
+  }, [xmlData, setProductionProgramData]);
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -45,6 +65,7 @@ function App() {
         });
         try {
           const result = parser.parse(xml);
+          console.log('Geparste XML-Daten:', result);
           setXmlData(result);
         } catch (err) {
           console.error('Fehler beim Parsen der XML:', err);
@@ -78,7 +99,7 @@ function App() {
     <Container maxWidth="lg">
       <Box sx={{ my: 4 }}>
         <Typography variant="h4" component="h1" gutterBottom>
-          Produktionsplanung
+          Supply Chain Management
         </Typography>
         
         <Paper sx={{ p: 2, mb: 2 }}>
@@ -95,52 +116,7 @@ function App() {
         </Paper>
 
         {xmlData && (
-          <>
-            <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-              <Tabs value={tabValue} onChange={handleTabChange}>
-                <Tab label="XML Editor" />
-                <Tab label="Produktionsprogramm" />
-                <Tab label="Materialplanung" />
-                <Tab label="Kapazitätsplanung" />
-                <Tab label="Beschaffungsplanung" />
-                <Tab label="Produktionsplanung" />
-                <Tab label="Ergebnis" />
-              </Tabs>
-            </Box>
-
-            <TabPanel value={tabValue} index={0}>
-              <Paper sx={{ p: 2 }}>
-                {/* XML Editor Content */}
-              </Paper>
-            </TabPanel>
-
-            <TabPanel value={tabValue} index={1}>
-              <ProductionProgram forecast={xmlData.results.forecast} />
-            </TabPanel>
-
-            <TabPanel value={tabValue} index={2}>
-              <MaterialPlanning 
-                forecast={xmlData.results.forecast}
-                warehousestock={xmlData.results.warehousestock}
-              />
-            </TabPanel>
-
-            <TabPanel value={tabValue} index={3}>
-              <CapacityPlanning />
-            </TabPanel>
-
-            <TabPanel value={tabValue} index={4}>
-              <ProcurementPlanning />
-            </TabPanel>
-
-            <TabPanel value={tabValue} index={5}>
-              <ProductionPlanning />
-            </TabPanel>
-
-            <TabPanel value={tabValue} index={6}>
-              <Results />
-            </TabPanel>
-          </>
+          <WorkflowContainer />
         )}
       </Box>
     </Container>

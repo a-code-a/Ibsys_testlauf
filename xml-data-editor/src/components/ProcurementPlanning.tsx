@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Paper, 
   Table, 
@@ -7,9 +7,9 @@ import {
   TableContainer, 
   TableHead, 
   TableRow,
-  TextField,
-  Box
+  TextField
 } from '@mui/material';
+import { useWorkflowStore } from '../store/workflowStore';
 
 interface ProcurementItem {
   produkt: string;
@@ -30,6 +30,7 @@ interface ProcurementItem {
 }
 
 export default function ProcurementPlanning() {
+  const { setProcurementPlanningData } = useWorkflowStore();
   const [procurementItems, setProcurementItems] = useState<ProcurementItem[]>([
     {
       produkt: "P1",
@@ -84,6 +85,19 @@ export default function ProcurementPlanning() {
     }
   ]);
 
+  // Aktualisiere die Daten im Store
+  useEffect(() => {
+    const data = { items: procurementItems };
+    console.log('Setze Procurement Planning Daten:', data);
+    setProcurementPlanningData(data);
+  }, [procurementItems, setProcurementPlanningData]);
+
+  const handleValueChange = (index: number, field: keyof ProcurementItem, value: string) => {
+    const newItems = [...procurementItems];
+    newItems[index] = { ...newItems[index], [field]: value };
+    setProcurementItems(newItems);
+  };
+
   return (
     <Paper sx={{ width: '100%', overflow: 'auto' }}>
       <TableContainer>
@@ -104,9 +118,7 @@ export default function ProcurementPlanning() {
               <TableCell>Bedarf für Periode x+3</TableCell>
               <TableCell>Bestellmenge</TableCell>
               <TableCell>Bestelltyp</TableCell>
-              <TableCell>Ausstehende Bestellung von Periode</TableCell>
-              <TableCell>Ausstehende Bestellmenge</TableCell>
-              <TableCell>Bestelltyp ausstehende Bestellung</TableCell>
+              <TableCell>Ausstehende Bestellung</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -117,166 +129,98 @@ export default function ProcurementPlanning() {
                   <TextField
                     value={item.lieferzeit}
                     size="small"
-                    onChange={(e) => {
-                      const newItems = [...procurementItems];
-                      newItems[index].lieferzeit = e.target.value;
-                      setProcurementItems(newItems);
-                    }}
+                    onChange={(e) => handleValueChange(index, 'lieferzeit', e.target.value)}
                   />
                 </TableCell>
                 <TableCell>
                   <TextField
                     value={item.abweichung}
                     size="small"
-                    onChange={(e) => {
-                      const newItems = [...procurementItems];
-                      newItems[index].abweichung = e.target.value;
-                      setProcurementItems(newItems);
-                    }}
+                    onChange={(e) => handleValueChange(index, 'abweichung', e.target.value)}
                   />
                 </TableCell>
                 <TableCell>
                   <TextField
                     value={item.anzahlP1}
                     size="small"
-                    onChange={(e) => {
-                      const newItems = [...procurementItems];
-                      newItems[index].anzahlP1 = e.target.value;
-                      setProcurementItems(newItems);
-                    }}
+                    onChange={(e) => handleValueChange(index, 'anzahlP1', e.target.value)}
                   />
                 </TableCell>
                 <TableCell>
                   <TextField
                     value={item.anzahlP2}
                     size="small"
-                    onChange={(e) => {
-                      const newItems = [...procurementItems];
-                      newItems[index].anzahlP2 = e.target.value;
-                      setProcurementItems(newItems);
-                    }}
+                    onChange={(e) => handleValueChange(index, 'anzahlP2', e.target.value)}
                   />
                 </TableCell>
                 <TableCell>
                   <TextField
                     value={item.anzahlP3}
                     size="small"
-                    onChange={(e) => {
-                      const newItems = [...procurementItems];
-                      newItems[index].anzahlP3 = e.target.value;
-                      setProcurementItems(newItems);
-                    }}
+                    onChange={(e) => handleValueChange(index, 'anzahlP3', e.target.value)}
                   />
                 </TableCell>
                 <TableCell>
                   <TextField
                     value={item.rabattMenge}
                     size="small"
-                    onChange={(e) => {
-                      const newItems = [...procurementItems];
-                      newItems[index].rabattMenge = e.target.value;
-                      setProcurementItems(newItems);
-                    }}
+                    onChange={(e) => handleValueChange(index, 'rabattMenge', e.target.value)}
                   />
                 </TableCell>
                 <TableCell>
                   <TextField
                     value={item.lagerbestand}
                     size="small"
-                    onChange={(e) => {
-                      const newItems = [...procurementItems];
-                      newItems[index].lagerbestand = e.target.value;
-                      setProcurementItems(newItems);
-                    }}
+                    onChange={(e) => handleValueChange(index, 'lagerbestand', e.target.value)}
                   />
                 </TableCell>
                 <TableCell>
                   <TextField
                     value={item.bedarfPeriodeX}
                     size="small"
-                    onChange={(e) => {
-                      const newItems = [...procurementItems];
-                      newItems[index].bedarfPeriodeX = e.target.value;
-                      setProcurementItems(newItems);
-                    }}
+                    onChange={(e) => handleValueChange(index, 'bedarfPeriodeX', e.target.value)}
                   />
                 </TableCell>
                 <TableCell>
                   <TextField
                     value={item.bedarfPeriodeX1}
                     size="small"
-                    onChange={(e) => {
-                      const newItems = [...procurementItems];
-                      newItems[index].bedarfPeriodeX1 = e.target.value;
-                      setProcurementItems(newItems);
-                    }}
+                    onChange={(e) => handleValueChange(index, 'bedarfPeriodeX1', e.target.value)}
                   />
                 </TableCell>
                 <TableCell>
                   <TextField
                     value={item.bedarfPeriodeX2}
                     size="small"
-                    onChange={(e) => {
-                      const newItems = [...procurementItems];
-                      newItems[index].bedarfPeriodeX2 = e.target.value;
-                      setProcurementItems(newItems);
-                    }}
+                    onChange={(e) => handleValueChange(index, 'bedarfPeriodeX2', e.target.value)}
                   />
                 </TableCell>
                 <TableCell>
                   <TextField
                     value={item.bedarfPeriodeX3}
                     size="small"
-                    onChange={(e) => {
-                      const newItems = [...procurementItems];
-                      newItems[index].bedarfPeriodeX3 = e.target.value;
-                      setProcurementItems(newItems);
-                    }}
+                    onChange={(e) => handleValueChange(index, 'bedarfPeriodeX3', e.target.value)}
                   />
                 </TableCell>
                 <TableCell>
                   <TextField
                     value={item.bestellmenge}
                     size="small"
-                    onChange={(e) => {
-                      const newItems = [...procurementItems];
-                      newItems[index].bestellmenge = e.target.value;
-                      setProcurementItems(newItems);
-                    }}
+                    onChange={(e) => handleValueChange(index, 'bestellmenge', e.target.value)}
                   />
                 </TableCell>
                 <TableCell>
                   <TextField
                     value={item.bestelltyp}
                     size="small"
-                    onChange={(e) => {
-                      const newItems = [...procurementItems];
-                      newItems[index].bestelltyp = e.target.value;
-                      setProcurementItems(newItems);
-                    }}
+                    onChange={(e) => handleValueChange(index, 'bestelltyp', e.target.value)}
                   />
                 </TableCell>
                 <TableCell>
                   <TextField
                     value={item.ausstehendeBestellung}
                     size="small"
-                    onChange={(e) => {
-                      const newItems = [...procurementItems];
-                      newItems[index].ausstehendeBestellung = e.target.value;
-                      setProcurementItems(newItems);
-                    }}
-                  />
-                </TableCell>
-                <TableCell>
-                  <TextField
-                    value="0"
-                    size="small"
-                  />
-                </TableCell>
-                <TableCell>
-                  <TextField
-                    value="-"
-                    size="small"
+                    onChange={(e) => handleValueChange(index, 'ausstehendeBestellung', e.target.value)}
                   />
                 </TableCell>
               </TableRow>
