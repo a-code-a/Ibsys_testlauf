@@ -1,48 +1,40 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import i18n from '../i18n';
+import { Select, MenuItem, FormControl, SelectChangeEvent } from '@mui/material';
 
 const LanguageSelector: React.FC = () => {
-  const { t } = useTranslation();
+  const { i18n } = useTranslation();
 
-  const changeLanguage = (lng: string) => {
-    i18n.changeLanguage(lng);
+  const handleChange = (event: SelectChangeEvent<string>) => {
+    i18n.changeLanguage(event.target.value);
+    localStorage.setItem('selectedLanguage', event.target.value);
   };
 
   return (
-    <div style={{
-      display: 'flex', 
-      justifyContent: 'flex-end', 
-      padding: '10px',
-      gap: '10px'
-    }}>
-      <button 
-        onClick={() => changeLanguage('de')}
-        style={{
-          backgroundColor: i18n.language === 'de' ? '#007bff' : '#f8f9fa',
-          color: i18n.language === 'de' ? 'white' : 'black',
-          border: '1px solid #007bff',
-          padding: '5px 10px',
-          borderRadius: '4px',
-          cursor: 'pointer'
+    <FormControl 
+      size="small" 
+      sx={{ 
+        m: 1, 
+        minWidth: 120,
+        position: 'absolute',
+        top: '10px',
+        right: '10px'
+      }}
+    >
+      <Select
+        value={i18n.language}
+        onChange={handleChange}
+        sx={{
+          backgroundColor: 'white',
+          '& .MuiSelect-select': {
+            paddingY: '8px',
+          }
         }}
       >
-        Deutsch
-      </button>
-      <button 
-        onClick={() => changeLanguage('en')}
-        style={{
-          backgroundColor: i18n.language === 'en' ? '#007bff' : '#f8f9fa',
-          color: i18n.language === 'en' ? 'white' : 'black',
-          border: '1px solid #007bff',
-          padding: '5px 10px',
-          borderRadius: '4px',
-          cursor: 'pointer'
-        }}
-      >
-        English
-      </button>
-    </div>
+        <MenuItem value="de">Deutsch</MenuItem>
+        <MenuItem value="en">English</MenuItem>
+      </Select>
+    </FormControl>
   );
 };
 
