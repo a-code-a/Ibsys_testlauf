@@ -13,6 +13,7 @@ import {
   Box
 } from '@mui/material';
 import { useWorkflowStore } from '../store/workflowStore';
+import { useTranslation } from 'react-i18next';
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -66,6 +67,7 @@ const OperatorCell = ({ children }: { children: React.ReactNode }) => (
 );
 
 export default function MaterialPlanning({ forecast, warehousestock }: MaterialPlanningProps) {
+  const { t } = useTranslation();
   const { setMaterialPlanningData } = useWorkflowStore();
   const [tabValue, setTabValue] = useState(0);
   
@@ -95,7 +97,6 @@ export default function MaterialPlanning({ forecast, warehousestock }: MaterialP
   const [p2Data, setP2Data] = useState(getInitialData('P2'));
   const [p3Data, setP3Data] = useState(getInitialData('P3'));
 
-  // Initialisiere die Daten im Store
   useEffect(() => {
     const allData = {
       items: [
@@ -127,20 +128,20 @@ export default function MaterialPlanning({ forecast, warehousestock }: MaterialP
       <Table size="small">
         <TableHead>
           <TableRow>
-            <TableCell>Produkt</TableCell>
-            <TableCell>Auftrag</TableCell>
+            <TableCell>{t('Produkt')}</TableCell>
+            <TableCell>{t('Auftrag')}</TableCell>
             <OperatorCell>+</OperatorCell>
-            <TableCell>Vorherige Warteschlange</TableCell>
+            <TableCell>{t('VorherigeWarteschlange')}</TableCell>
             <OperatorCell>+</OperatorCell>
-            <TableCell>Sicherheitsbestand</TableCell>
+            <TableCell>{t('Sicherheitsbestand')}</TableCell>
             <OperatorCell>-</OperatorCell>
-            <TableCell>Lagerbestand</TableCell>
+            <TableCell>{t('Lagerbestand')}</TableCell>
             <OperatorCell>-</OperatorCell>
-            <TableCell>Warteschlange</TableCell>
+            <TableCell>{t('Warteschlange')}</TableCell>
             <OperatorCell>-</OperatorCell>
-            <TableCell>Laufende Arbeiten</TableCell>
+            <TableCell>{t('LaufendeArbeiten')}</TableCell>
             <OperatorCell>=</OperatorCell>
-            <TableCell>Produktionsaufträge</TableCell>
+            <TableCell>{t('Produktionsauftraege')}</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
@@ -213,9 +214,9 @@ export default function MaterialPlanning({ forecast, warehousestock }: MaterialP
     <Paper sx={{ width: '100%' }}>
       <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
         <Tabs value={tabValue} onChange={handleTabChange}>
-          <Tab label="P1 - Kinderrad" />
-          <Tab label="P2 - Damenrad" />
-          <Tab label="P3 - Herrenrad" />
+          <Tab label={t('KinderradTab')} />
+          <Tab label={t('DamenradTab')} />
+          <Tab label={t('HerrenradTab')} />
         </Tabs>
       </Box>
 

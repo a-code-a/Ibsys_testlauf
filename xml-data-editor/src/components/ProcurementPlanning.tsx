@@ -10,6 +10,7 @@ import {
   TextField
 } from '@mui/material';
 import { useWorkflowStore } from '../store/workflowStore';
+import { useTranslation } from 'react-i18next';
 
 interface ProcurementItem {
   produkt: string;
@@ -30,6 +31,7 @@ interface ProcurementItem {
 }
 
 export default function ProcurementPlanning() {
+  const { t } = useTranslation();
   const { setProcurementPlanningData } = useWorkflowStore();
   const [procurementItems, setProcurementItems] = useState<ProcurementItem[]>([
     {
@@ -85,7 +87,6 @@ export default function ProcurementPlanning() {
     }
   ]);
 
-  // Aktualisiere die Daten im Store
   useEffect(() => {
     const data = { items: procurementItems };
     console.log('Setze Procurement Planning Daten:', data);
@@ -104,21 +105,21 @@ export default function ProcurementPlanning() {
         <Table size="small">
           <TableHead>
             <TableRow>
-              <TableCell>Produkt</TableCell>
-              <TableCell>Lieferzeit</TableCell>
-              <TableCell>Abweichung</TableCell>
-              <TableCell>Anzahl P1</TableCell>
-              <TableCell>Anzahl P2</TableCell>
-              <TableCell>Anzahl P3</TableCell>
-              <TableCell>Rabatt Menge</TableCell>
-              <TableCell>Lagerüberbestand</TableCell>
-              <TableCell>Bedarf für Periode x</TableCell>
-              <TableCell>Bedarf für Periode x+1</TableCell>
-              <TableCell>Bedarf für Periode x+2</TableCell>
-              <TableCell>Bedarf für Periode x+3</TableCell>
-              <TableCell>Bestellmenge</TableCell>
-              <TableCell>Bestelltyp</TableCell>
-              <TableCell>Ausstehende Bestellung</TableCell>
+              <TableCell>{t('Produkt')}</TableCell>
+              <TableCell>{t('Lieferzeit')}</TableCell>
+              <TableCell>{t('Abweichung')}</TableCell>
+              <TableCell>{t('AnzahlP1')}</TableCell>
+              <TableCell>{t('AnzahlP2')}</TableCell>
+              <TableCell>{t('AnzahlP3')}</TableCell>
+              <TableCell>{t('RabattMenge')}</TableCell>
+              <TableCell>{t('Lagerüberbestand')}</TableCell>
+              <TableCell>{t('BedarfPeriodeX')}</TableCell>
+              <TableCell>{t('BedarfPeriodeX1')}</TableCell>
+              <TableCell>{t('BedarfPeriodeX2')}</TableCell>
+              <TableCell>{t('BedarfPeriodeX3')}</TableCell>
+              <TableCell>{t('Bestellmenge')}</TableCell>
+              <TableCell>{t('Bestelltyp')}</TableCell>
+              <TableCell>{t('AusstehendeBestellung')}</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>

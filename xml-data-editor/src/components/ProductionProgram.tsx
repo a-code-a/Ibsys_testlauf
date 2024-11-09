@@ -11,6 +11,7 @@ import {
   Typography
 } from '@mui/material';
 import { useWorkflowStore } from '../store/workflowStore';
+import { useTranslation } from 'react-i18next';
 
 interface ProductionProgramProps {
   forecast: {
@@ -32,11 +33,12 @@ interface ProductData {
 }
 
 export default function ProductionProgram({ forecast }: ProductionProgramProps) {
+  const { t } = useTranslation();
   const { setProductionProgramData } = useWorkflowStore();
   const [products, setProducts] = useState<ProductData[]>([
     {
       id: "P1",
-      name: "Kinderrad",
+      name: t('Kinderrad'),
       periods: {
         "5": { sales: forecast._p1, production: forecast._p1 },
         "6": { sales: "0", production: "0" },
@@ -46,7 +48,7 @@ export default function ProductionProgram({ forecast }: ProductionProgramProps) 
     },
     {
       id: "P2",
-      name: "Damenrad",
+      name: t('Damenrad'),
       periods: {
         "5": { sales: forecast._p2, production: forecast._p2 },
         "6": { sales: "0", production: "0" },
@@ -56,7 +58,7 @@ export default function ProductionProgram({ forecast }: ProductionProgramProps) 
     },
     {
       id: "P3",
-      name: "Herrenrad",
+      name: t('Herrenrad'),
       periods: {
         "5": { sales: forecast._p3, production: forecast._p3 },
         "6": { sales: "0", production: "0" },
@@ -66,7 +68,6 @@ export default function ProductionProgram({ forecast }: ProductionProgramProps) 
     }
   ]);
 
-  // Aktualisieren der Daten bei Änderungen und beim ersten Rendern
   useEffect(() => {
     console.log('Aktualisiere Produktionsprogramm-Daten:', { products });
     setProductionProgramData({ products });
@@ -101,34 +102,34 @@ export default function ProductionProgram({ forecast }: ProductionProgramProps) 
   return (
     <Paper sx={{ p: 2, width: '100%' }}>
       <Typography variant="h6" gutterBottom>
-        Produktionsprogramm
+        {t('Produktionsprogramm')}
       </Typography>
       <TableContainer>
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell>Produkt \ Periode</TableCell>
-              <TableCell align="center" colSpan={2}>5 (Auftrag)</TableCell>
-              <TableCell align="center" colSpan={2}>6 (Vorhersage)</TableCell>
-              <TableCell align="center" colSpan={2}>7 (Vorhersage)</TableCell>
-              <TableCell align="center" colSpan={2}>8 (Vorhersage)</TableCell>
+              <TableCell>{t('Produkt')} \ {t('Periode')}</TableCell>
+              <TableCell align="center" colSpan={2}>5 ({t('Auftrag')})</TableCell>
+              <TableCell align="center" colSpan={2}>6 ({t('Vorhersage')})</TableCell>
+              <TableCell align="center" colSpan={2}>7 ({t('Vorhersage')})</TableCell>
+              <TableCell align="center" colSpan={2}>8 ({t('Vorhersage')})</TableCell>
             </TableRow>
             <TableRow>
               <TableCell></TableCell>
-              <TableCell align="center">Verkauf</TableCell>
-              <TableCell align="center">Produktion</TableCell>
-              <TableCell align="center">Verkauf</TableCell>
-              <TableCell align="center">Produktion</TableCell>
-              <TableCell align="center">Verkauf</TableCell>
-              <TableCell align="center">Produktion</TableCell>
-              <TableCell align="center">Verkauf</TableCell>
-              <TableCell align="center">Produktion</TableCell>
+              <TableCell align="center">{t('Verkauf')}</TableCell>
+              <TableCell align="center">{t('Produktion')}</TableCell>
+              <TableCell align="center">{t('Verkauf')}</TableCell>
+              <TableCell align="center">{t('Produktion')}</TableCell>
+              <TableCell align="center">{t('Verkauf')}</TableCell>
+              <TableCell align="center">{t('Produktion')}</TableCell>
+              <TableCell align="center">{t('Verkauf')}</TableCell>
+              <TableCell align="center">{t('Produktion')}</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {products.map((product) => (
               <TableRow key={product.id}>
-                <TableCell>{product.name}</TableCell>
+                <TableCell>{t(product.name)}</TableCell>
                 {["5", "6", "7", "8"].map((period) => (
                   <React.Fragment key={period}>
                     <TableCell>

@@ -15,6 +15,7 @@ import {
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import { useWorkflowStore } from '../store/workflowStore';
+import { useTranslation } from 'react-i18next';
 
 interface OrderItem {
   id: string;
@@ -24,6 +25,7 @@ interface OrderItem {
 }
 
 export default function ProductionPlanning() {
+  const { t } = useTranslation();
   const { setProductionPlanningData } = useWorkflowStore();
   const [orders, setOrders] = useState<OrderItem[]>([
     { id: '1', articleNumber: '16', amount: 130, selected: false },
@@ -87,7 +89,7 @@ export default function ProductionPlanning() {
             }
           }}
         >
-          BESTELLUNG AUFTEILEN
+          {t('BestellungAufteilen')}
         </Button>
       </Box>
       
@@ -95,10 +97,10 @@ export default function ProductionPlanning() {
         <Table size="small">
           <TableHead>
             <TableRow>
-              <TableCell width="80px">Move</TableCell>
-              <TableCell width="50px">Select</TableCell>
-              <TableCell>Article number</TableCell>
-              <TableCell>Amount</TableCell>
+              <TableCell width="80px">{t('Verschieben')}</TableCell>
+              <TableCell width="50px">{t('Auswählen')}</TableCell>
+              <TableCell>{t('Artikelnummer')}</TableCell>
+              <TableCell>{t('Menge')}</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>

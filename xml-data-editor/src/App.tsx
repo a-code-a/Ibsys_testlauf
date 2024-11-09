@@ -4,10 +4,13 @@ import { XMLParser, XMLBuilder } from 'fast-xml-parser';
 import { XMLData } from './types';
 import { WorkflowContainer } from './workflow/WorkflowContainer';
 import { useWorkflowStore } from './store/workflowStore';
+import { useTranslation } from 'react-i18next';
+import LanguageSelector from './components/LanguageSelector';
 
 function App() {
   const [xmlData, setXmlData] = useState<XMLData | null>(null);
   const { setProductionProgramData } = useWorkflowStore();
+  const { t } = useTranslation();
 
   // Initialisiere die Daten, wenn xmlData sich ändert
   useEffect(() => {
@@ -97,20 +100,21 @@ function App() {
 
   return (
     <Container maxWidth="lg">
+      <LanguageSelector />
       <Box sx={{ my: 4 }}>
         <Typography variant="h4" component="h1" gutterBottom>
-          Supply Chain Management
+          {t('SupplyChainManagement')}
         </Typography>
         
         <Paper sx={{ p: 2, mb: 2 }}>
           <Button variant="contained" component="label" sx={{ mr: 2 }}>
-            XML Datei hochladen
+            {t('XMLDateiHochladen')}
             <input type="file" hidden accept=".xml" onChange={handleFileUpload} />
           </Button>
           
           {xmlData && (
             <Button variant="contained" onClick={handleDownload}>
-              XML herunterladen
+              {t('XMLHerunterladen')}
             </Button>
           )}
         </Paper>

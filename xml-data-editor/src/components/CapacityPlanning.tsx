@@ -11,6 +11,7 @@ import {
   Box
 } from '@mui/material';
 import { useWorkflowStore } from '../store/workflowStore';
+import { useTranslation } from 'react-i18next';
 
 interface WorkstationData {
   id: number;
@@ -31,6 +32,7 @@ interface ProductionItem {
 }
 
 export default function CapacityPlanning() {
+  const { t } = useTranslation();
   const { setCapacityPlanningData } = useWorkflowStore();
 
   const initWorkstations = () => {
@@ -56,7 +58,6 @@ export default function CapacityPlanning() {
       produktionsmenge: "150",
       workstations: {...initWorkstations()}
     }
-    // ... weitere Produktionsitems hier
   ]);
 
   const [workstationData, setWorkstationData] = useState<WorkstationData[]>([
@@ -78,10 +79,8 @@ export default function CapacityPlanning() {
       overtimes: "0",
       overtimePerDays: "0"
     }
-    // ... weitere Workstations hier
   ]);
 
-  // Aktualisiere die Daten im Store
   useEffect(() => {
     const data = {
       productionItems,
@@ -121,13 +120,13 @@ export default function CapacityPlanning() {
         <Table size="small">
           <TableHead>
             <TableRow>
-              <TableCell>Bezeichnung</TableCell>
-              <TableCell>Finales Produkt</TableCell>
-              <TableCell>Artikelnummer</TableCell>
-              <TableCell>Produktionsmenge</TableCell>
+              <TableCell>{t('Bezeichnung')}</TableCell>
+              <TableCell>{t('FinalesProdukt')}</TableCell>
+              <TableCell>{t('Artikelnummer')}</TableCell>
+              <TableCell>{t('Produktionsmenge')}</TableCell>
               {Array.from({ length: 15 }, (_, i) => i + 1).map((station) => (
                 <TableCell key={station} align="center">
-                  Workstation {station}
+                  {t('Arbeitsplatz')} {station}
                 </TableCell>
               ))}
             </TableRow>
@@ -165,17 +164,17 @@ export default function CapacityPlanning() {
           <Table size="small">
             <TableHead>
               <TableRow>
-                <TableCell>Kapazitätsberechnung</TableCell>
+                <TableCell>{t('Kapazitätsberechnung')}</TableCell>
                 {Array.from({ length: 15 }, (_, i) => i + 1).map((station) => (
                   <TableCell key={station} align="center">
-                    Workstation {station}
+                    {t('Arbeitsplatz')} {station}
                   </TableCell>
                 ))}
               </TableRow>
             </TableHead>
             <TableBody>
               <TableRow>
-                <TableCell>Capacity Requirements</TableCell>
+                <TableCell>{t('Kapazitätsbedarf')}</TableCell>
                 {Array.from({ length: 15 }, (_, i) => i + 1).map((station) => (
                   <TableCell key={station}>
                     <TextField
@@ -187,7 +186,7 @@ export default function CapacityPlanning() {
                 ))}
               </TableRow>
               <TableRow>
-                <TableCell>Setup Times</TableCell>
+                <TableCell>{t('Rüstzeiten')}</TableCell>
                 {Array.from({ length: 15 }, (_, i) => i + 1).map((station) => (
                   <TableCell key={station}>
                     <TextField
@@ -199,7 +198,7 @@ export default function CapacityPlanning() {
                 ))}
               </TableRow>
               <TableRow>
-                <TableCell>Capacity Previous Periods</TableCell>
+                <TableCell>{t('KapazitätVorperioden')}</TableCell>
                 {Array.from({ length: 15 }, (_, i) => i + 1).map((station) => (
                   <TableCell key={station}>
                     <TextField
@@ -211,7 +210,7 @@ export default function CapacityPlanning() {
                 ))}
               </TableRow>
               <TableRow>
-                <TableCell>Total Capacity Requirements</TableCell>
+                <TableCell>{t('GesamtKapazitätsbedarf')}</TableCell>
                 {Array.from({ length: 15 }, (_, i) => i + 1).map((station) => (
                   <TableCell key={station}>
                     <TextField
@@ -223,7 +222,7 @@ export default function CapacityPlanning() {
                 ))}
               </TableRow>
               <TableRow>
-                <TableCell>Overtimes</TableCell>
+                <TableCell>{t('Überstunden')}</TableCell>
                 {Array.from({ length: 15 }, (_, i) => i + 1).map((station) => (
                   <TableCell key={station}>
                     <TextField
@@ -235,7 +234,7 @@ export default function CapacityPlanning() {
                 ))}
               </TableRow>
               <TableRow>
-                <TableCell>Overtime Per Days</TableCell>
+                <TableCell>{t('ÜberstundenProTag')}</TableCell>
                 {Array.from({ length: 15 }, (_, i) => i + 1).map((station) => (
                   <TableCell key={station}>
                     <TextField

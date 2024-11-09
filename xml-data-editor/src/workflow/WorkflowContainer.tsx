@@ -7,6 +7,7 @@ import CapacityPlanning from '../components/CapacityPlanning';
 import ProcurementPlanning from '../components/ProcurementPlanning';
 import ProductionPlanning from '../components/ProductionPlanning';
 import Results from '../components/Results';
+import { useTranslation } from 'react-i18next';
 import {
   productionProgramSchema,
   materialPlanningSchema,
@@ -15,15 +16,6 @@ import {
   productionPlanningSchema
 } from '../schemas/validationSchemas';
 
-const steps = [
-  'Produktionsprogramm',
-  'Materialplanung',
-  'Kapazitätsplanung',
-  'Beschaffungsplanung',
-  'Produktionsplanung',
-  'Ergebnisse'
-];
-
 const defaultForecast = {
   _p1: "200",
   _p2: "150",
@@ -31,6 +23,7 @@ const defaultForecast = {
 };
 
 export const WorkflowContainer: React.FC = () => {
+  const { t } = useTranslation();
   const [validationError, setValidationError] = React.useState<string | null>(null);
   const { 
     currentStep, 
@@ -41,6 +34,15 @@ export const WorkflowContainer: React.FC = () => {
     procurementPlanningData,
     productionPlanningData
   } = useWorkflowStore();
+
+  const steps = [
+    t('Produktionsprogramm'),
+    t('Materialplanung'),
+    t('Kapazitätsplanung'),
+    t('Beschaffungsplanung'),
+    t('Produktionsplanung'),
+    t('Ergebnisse')
+  ];
 
   const handleNext = () => {
     setValidationError(null);
@@ -171,7 +173,7 @@ export const WorkflowContainer: React.FC = () => {
             onClick={handleBack}
             sx={{ mr: 1 }}
           >
-            Zurück
+            {t('Zurück')}
           </Button>
         )}
         {currentStep < steps.length - 1 ? (
@@ -185,7 +187,7 @@ export const WorkflowContainer: React.FC = () => {
               }
             }}
           >
-            Weiter
+            {t('Weiter')}
           </Button>
         ) : (
           <Button
@@ -206,7 +208,7 @@ export const WorkflowContainer: React.FC = () => {
               }
             }}
           >
-            Abschließen
+            {t('Abschließen')}
           </Button>
         )}
       </Box>
