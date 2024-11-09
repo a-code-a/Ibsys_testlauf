@@ -66,6 +66,18 @@
     "AusstehendeBestellung": "Ausstehende Bestellung",
 
     "Ergebnisse": "Ergebnisse",
+    "ErgebnisseProduktionsprogramm": "PRODUKTIONSPROGRAMM",
+    "ErgebnisseBestellungen": "BESTELLUNGEN",
+    "ErgebnisseProduktionsplanung": "PRODUKTIONSPLANUNG",
+    "ErgebnisseKapazitätsplanung": "KAPAZITÄTSPLANUNG",
+    
+    "Artikel": "Artikel",
+    "Direktverkauf": "Direktverkauf",
+    "Verkaufsmenge": "Verkaufsmenge",
+    "Verkaufspreis": "Verkaufspreis",
+    "Strafe": "Strafe",
+    "Station": "Station",
+    "Schicht": "Schicht",
     
     "Weiter": "Weiter",
     "Zurück": "Zurück",

@@ -66,6 +66,18 @@
     "AusstehendeBestellung": "Outstanding Order",
 
     "Ergebnisse": "Results",
+    "ErgebnisseProduktionsprogramm": "PRODUCTION PROGRAM",
+    "ErgebnisseBestellungen": "ORDERS",
+    "ErgebnisseProduktionsplanung": "PRODUCTION PLANNING",
+    "ErgebnisseKapazitätsplanung": "CAPACITY PLANNING",
+    
+    "Artikel": "Article",
+    "Direktverkauf": "Direct Sales",
+    "Verkaufsmenge": "Sales Quantity",
+    "Verkaufspreis": "Sales Price",
+    "Strafe": "Penalty",
+    "Station": "Station",
+    "Schicht": "Shift",
     
     "Weiter": "Next",
     "Zurück": "Back",

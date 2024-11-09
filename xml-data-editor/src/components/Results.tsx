@@ -12,6 +12,7 @@ import {
   Box
 } from '@mui/material';
 import { useWorkflowStore } from '../store/workflowStore';
+import { useTranslation } from 'react-i18next';
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -29,6 +30,7 @@ function TabPanel(props: TabPanelProps) {
 }
 
 const Results: React.FC = () => {
+  const { t } = useTranslation();
   const { setResultsData } = useWorkflowStore();
   const [tabValue, setTabValue] = useState(0);
 
@@ -70,7 +72,6 @@ const Results: React.FC = () => {
     { station: '15', uberstunden: '234', schicht: '1' }
   ]);
 
-  // Aktualisiere die Daten im Store
   useEffect(() => {
     const data = {
       productionProgram,
@@ -90,10 +91,10 @@ const Results: React.FC = () => {
     <Paper sx={{ width: '100%' }}>
       <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
         <Tabs value={tabValue} onChange={handleTabChange}>
-          <Tab label="PRODUKTIONSPROGRAMM" />
-          <Tab label="BESTELLUNGEN" />
-          <Tab label="PRODUKTIONSPLANUNG" />
-          <Tab label="KAPAZITÄTSPLANUNG" />
+          <Tab label={t('ErgebnisseProduktionsprogramm')} />
+          <Tab label={t('ErgebnisseBestellungen')} />
+          <Tab label={t('ErgebnisseProduktionsplanung')} />
+          <Tab label={t('ErgebnisseKapazitätsplanung')} />
         </Tabs>
       </Box>
 
@@ -102,12 +103,12 @@ const Results: React.FC = () => {
           <Table size="small">
             <TableHead>
               <TableRow>
-                <TableCell>Artikel</TableCell>
-                <TableCell>Produktionsmenge</TableCell>
-                <TableCell>Direktverkauf</TableCell>
-                <TableCell>Verkaufsmenge</TableCell>
-                <TableCell>Verkaufspreis</TableCell>
-                <TableCell>Strafe</TableCell>
+                <TableCell>{t('Artikel')}</TableCell>
+                <TableCell>{t('Produktionsmenge')}</TableCell>
+                <TableCell>{t('Direktverkauf')}</TableCell>
+                <TableCell>{t('Verkaufsmenge')}</TableCell>
+                <TableCell>{t('Verkaufspreis')}</TableCell>
+                <TableCell>{t('Strafe')}</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -131,9 +132,9 @@ const Results: React.FC = () => {
           <Table size="small">
             <TableHead>
               <TableRow>
-                <TableCell>Artikel</TableCell>
-                <TableCell>Menge</TableCell>
-                <TableCell>Modus</TableCell>
+                <TableCell>{t('Artikel')}</TableCell>
+                <TableCell>{t('Menge')}</TableCell>
+                <TableCell>{t('Bestelltyp')}</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -154,8 +155,8 @@ const Results: React.FC = () => {
           <Table size="small">
             <TableHead>
               <TableRow>
-                <TableCell>Artikel</TableCell>
-                <TableCell>Menge</TableCell>
+                <TableCell>{t('Artikel')}</TableCell>
+                <TableCell>{t('Menge')}</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -175,9 +176,9 @@ const Results: React.FC = () => {
           <Table size="small">
             <TableHead>
               <TableRow>
-                <TableCell>Station</TableCell>
-                <TableCell>Überstunden</TableCell>
-                <TableCell>Schicht</TableCell>
+                <TableCell>{t('Station')}</TableCell>
+                <TableCell>{t('Überstunden')}</TableCell>
+                <TableCell>{t('Schicht')}</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
