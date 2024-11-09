@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Container, Paper, Button, Typography } from '@mui/material';
+import { Box, Container, Paper, Button, Typography, TextField } from '@mui/material';
 import { XMLParser, XMLBuilder } from 'fast-xml-parser';
 import { XMLData } from './types';
 import { WorkflowContainer } from './workflow/WorkflowContainer';
@@ -11,6 +11,19 @@ function App() {
   const [xmlData, setXmlData] = useState<XMLData | null>(null);
   const { setProductionProgramData } = useWorkflowStore();
   const { t } = useTranslation();
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+
+  const handleLogin = () => {
+    if (username === 'admin' && password === 'p') {
+      setIsLoggedIn(true);
+      setError('');
+    } else {
+      setError('Falscher Benutzername oder Passwort');
+    }
+  };
 
   // Initialisiere die Daten, wenn xmlData sich ändert
   useEffect(() => {
@@ -97,6 +110,50 @@ function App() {
       URL.revokeObjectURL(url);
     }
   };
+
+  if (!isLoggedIn) {
+    return (
+      <Container maxWidth="sm">
+        <Box sx={{ my: 4 }}>
+          <Paper sx={{ p: 4 }}>
+            <Typography variant="h4" component="h1" gutterBottom align="center">
+              Login
+            </Typography>
+            <Box component="form" sx={{ mt: 2 }}>
+              <TextField
+                fullWidth
+                label="Benutzername"
+                margin="normal"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+              />
+              <TextField
+                fullWidth
+                label="Passwort"
+                type="password"
+                margin="normal"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+              {error && (
+                <Typography color="error" sx={{ mt: 2 }}>
+                  {error}
+                </Typography>
+              )}
+              <Button
+                fullWidth
+                variant="contained"
+                sx={{ mt: 3 }}
+                onClick={handleLogin}
+              >
+                Anmelden
+              </Button>
+            </Box>
+          </Paper>
+        </Box>
+      </Container>
+    );
+  }
 
   return (
     <Container maxWidth="lg">
