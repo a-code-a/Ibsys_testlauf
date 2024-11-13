@@ -83,9 +83,9 @@ export default function ProductionPlanning() {
           color="primary" 
           onClick={handleSplitOrder}
           sx={{ 
-            backgroundColor: '#28a745',
+           
             '&:hover': {
-              backgroundColor: '#218838'
+             
             }
           }}
         >
