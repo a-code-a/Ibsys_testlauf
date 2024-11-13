@@ -72,25 +72,52 @@ export default function MaterialPlanning({ forecast, warehousestock }: MaterialP
   const [tabValue, setTabValue] = useState(0);
   
   const getInitialData = (productId: string): MaterialRowData[] => {
-    if (productId === 'P1') {
-      return [
+    const productData = {
+      'P1': [
         { id: 'P1', name: 'P1', auftrag: '200', vorherige: '0', sicherheit: '100', lager: '100', warteschlange: '0', laufend: '0', produktion: '200' },
-        { id: 'E26', name: 'E26*', auftrag: '200', vorherige: '0', sicherheit: '300', lager: '0', warteschlange: '280', laufend: '10', produktion: '210' },
-        { id: 'E51', name: 'E51', auftrag: '200', vorherige: '0', sicherheit: '100', lager: '50', warteschlange: '0', laufend: '0', produktion: '250' }
-      ];
-    } else if (productId === 'P2') {
-      return [
+        { id: 'E261', name: 'E261', auftrag: '200', vorherige: '0', sicherheit: '100', lager: '50', warteschlange: '0', laufend: '0', produktion: '250' },
+        { id: 'E51', name: 'E51', auftrag: '200', vorherige: '0', sicherheit: '100', lager: '50', warteschlange: '0', laufend: '0', produktion: '250' },
+        { id: 'E161', name: 'E161', auftrag: '200', vorherige: '0', sicherheit: '100', lager: '50', warteschlange: '0', laufend: '0', produktion: '250' },
+        { id: 'E171', name: 'E171', auftrag: '200', vorherige: '0', sicherheit: '100', lager: '50', warteschlange: '0', laufend: '0', produktion: '250' },
+        { id: 'E50', name: 'E50', auftrag: '200', vorherige: '0', sicherheit: '100', lager: '50', warteschlange: '0', laufend: '0', produktion: '250' },
+        { id: 'E4', name: 'E4', auftrag: '200', vorherige: '0', sicherheit: '100', lager: '50', warteschlange: '0', laufend: '0', produktion: '250' },
+        { id: 'E10', name: 'E10', auftrag: '200', vorherige: '0', sicherheit: '100', lager: '50', warteschlange: '0', laufend: '0', produktion: '250' },
+        { id: 'E49', name: 'E49', auftrag: '200', vorherige: '0', sicherheit: '100', lager: '50', warteschlange: '0', laufend: '0', produktion: '250' },
+        { id: 'E7', name: 'E7', auftrag: '200', vorherige: '0', sicherheit: '100', lager: '50', warteschlange: '0', laufend: '0', produktion: '250' },
+        { id: 'E13', name: 'E13', auftrag: '200', vorherige: '0', sicherheit: '100', lager: '50', warteschlange: '0', laufend: '0', produktion: '250' },
+        { id: 'E18', name: 'E18', auftrag: '200', vorherige: '0', sicherheit: '100', lager: '50', warteschlange: '0', laufend: '0', produktion: '250' }
+      ],
+      'P2': [
         { id: 'P2', name: 'P2', auftrag: '150', vorherige: '0', sicherheit: '50', lager: '100', warteschlange: '0', laufend: '0', produktion: '100' },
-        { id: 'E26', name: 'E26*', auftrag: '100', vorherige: '0', sicherheit: '0', lager: '0', warteschlange: '0', laufend: '0', produktion: '100' },
-        { id: 'E56', name: 'E56', auftrag: '100', vorherige: '0', sicherheit: '50', lager: '150', warteschlange: '0', laufend: '0', produktion: '0' }
-      ];
-    } else {
-      return [
+        { id: 'E262', name: 'E262', auftrag: '150', vorherige: '0', sicherheit: '50', lager: '50', warteschlange: '0', laufend: '0', produktion: '200' },
+        { id: 'E56', name: 'E56', auftrag: '150', vorherige: '0', sicherheit: '50', lager: '150', warteschlange: '0', laufend: '0', produktion: '0' },
+        { id: 'E162', name: 'E162', auftrag: '150', vorherige: '0', sicherheit: '50', lager: '50', warteschlange: '0', laufend: '0', produktion: '200' },
+        { id: 'E172', name: 'E172', auftrag: '150', vorherige: '0', sicherheit: '50', lager: '50', warteschlange: '0', laufend: '0', produktion: '200' },
+        { id: 'E55', name: 'E55', auftrag: '150', vorherige: '0', sicherheit: '50', lager: '150', warteschlange: '0', laufend: '0', produktion: '0' },
+        { id: 'E5', name: 'E5', auftrag: '150', vorherige: '0', sicherheit: '50', lager: '50', warteschlange: '0', laufend: '0', produktion: '200' },
+        { id: 'E11', name: 'E11', auftrag: '150', vorherige: '0', sicherheit: '50', lager: '50', warteschlange: '0', laufend: '0', produktion: '200' },
+        { id: 'E54', name: 'E54', auftrag: '150', vorherige: '0', sicherheit: '50', lager: '150', warteschlange: '0', laufend: '0', produktion: '0' },
+        { id: 'E8', name: 'E8', auftrag: '150', vorherige: '0', sicherheit: '50', lager: '50', warteschlange: '0', laufend: '0', produktion: '200' },
+        { id: 'E14', name: 'E14', auftrag: '150', vorherige: '0', sicherheit: '50', lager: '50', warteschlange: '0', laufend: '0', produktion: '200' },
+        { id: 'E19', name: 'E19', auftrag: '150', vorherige: '0', sicherheit: '50', lager: '50', warteschlange: '0', laufend: '0', produktion: '200' }
+      ],
+      'P3': [
         { id: 'P3', name: 'P3', auftrag: '250', vorherige: '0', sicherheit: '50', lager: '50', warteschlange: '0', laufend: '0', produktion: '250' },
-        { id: 'E26', name: 'E26*', auftrag: '250', vorherige: '0', sicherheit: '0', lager: '0', warteschlange: '0', laufend: '0', produktion: '250' },
-        { id: 'E31', name: 'E31', auftrag: '250', vorherige: '0', sicherheit: '50', lager: '150', warteschlange: '0', laufend: '0', produktion: '150' }
-      ];
-    }
+        { id: 'E263', name: 'E263', auftrag: '250', vorherige: '0', sicherheit: '50', lager: '50', warteschlange: '0', laufend: '0', produktion: '300' },
+        { id: 'E31', name: 'E31', auftrag: '250', vorherige: '0', sicherheit: '50', lager: '150', warteschlange: '0', laufend: '0', produktion: '150' },
+        { id: 'E163', name: 'E163', auftrag: '250', vorherige: '0', sicherheit: '50', lager: '50', warteschlange: '0', laufend: '0', produktion: '300' },
+        { id: 'E173', name: 'E173', auftrag: '250', vorherige: '0', sicherheit: '50', lager: '50', warteschlange: '0', laufend: '0', produktion: '300' },
+        { id: 'E30', name: 'E30', auftrag: '250', vorherige: '0', sicherheit: '50', lager: '150', warteschlange: '0', laufend: '0', produktion: '150' },
+        { id: 'E6', name: 'E6', auftrag: '250', vorherige: '0', sicherheit: '50', lager: '50', warteschlange: '0', laufend: '0', produktion: '300' },
+        { id: 'E12', name: 'E12', auftrag: '250', vorherige: '0', sicherheit: '50', lager: '50', warteschlange: '0', laufend: '0', produktion: '300' },
+        { id: 'E29', name: 'E29', auftrag: '250', vorherige: '0', sicherheit: '50', lager: '150', warteschlange: '0', laufend: '0', produktion: '150' },
+        { id: 'E9', name: 'E9', auftrag: '250', vorherige: '0', sicherheit: '50', lager: '50', warteschlange: '0', laufend: '0', produktion: '300' },
+        { id: 'E15', name: 'E15', auftrag: '250', vorherige: '0', sicherheit: '50', lager: '50', warteschlange: '0', laufend: '0', produktion: '300' },
+        { id: 'E20', name: 'E20', auftrag: '250', vorherige: '0', sicherheit: '50', lager: '50', warteschlange: '0', laufend: '0', produktion: '300' }
+      ]
+    };
+
+    return productData[productId as keyof typeof productData] || [];
   };
 
   const [p1Data, setP1Data] = useState(getInitialData('P1'));

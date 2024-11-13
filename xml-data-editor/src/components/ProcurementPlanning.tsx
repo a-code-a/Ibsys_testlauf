@@ -7,7 +7,8 @@ import {
   TableContainer, 
   TableHead, 
   TableRow,
-  TextField
+  TextField,
+  Box
 } from '@mui/material';
 import { useWorkflowStore } from '../store/workflowStore';
 import { useTranslation } from 'react-i18next';
@@ -29,6 +30,19 @@ interface ProcurementItem {
   bestelltyp: string;
   ausstehendeBestellung: string;
 }
+
+const getTrafficLightColor = (lagerbestand: string, bedarf: string): string => {
+  const lagerbestandNum = parseFloat(lagerbestand);
+  const bedarfNum = parseFloat(bedarf);
+  
+  if (isNaN(lagerbestandNum) || isNaN(bedarfNum)) return 'gray';
+  
+  const ratio = lagerbestandNum / bedarfNum;
+  
+  if (ratio > 1.5) return 'green';
+  if (ratio > 0.5) return 'yellow';
+  return 'red';
+};
 
 export default function ProcurementPlanning() {
   const { t } = useTranslation();
@@ -120,6 +134,7 @@ export default function ProcurementPlanning() {
               <TableCell>{t('Bestellmenge')}</TableCell>
               <TableCell>{t('Bestelltyp')}</TableCell>
               <TableCell>{t('AusstehendeBestellung')}</TableCell>
+              <TableCell>{t('Dringlichkeit')}</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -222,6 +237,17 @@ export default function ProcurementPlanning() {
                     value={item.ausstehendeBestellung}
                     size="small"
                     onChange={(e) => handleValueChange(index, 'ausstehendeBestellung', e.target.value)}
+                  />
+                </TableCell>
+                <TableCell>
+                  <Box 
+                    sx={{ 
+                      width: 30, 
+                      height: 30, 
+                      borderRadius: '50%', 
+                      backgroundColor: getTrafficLightColor(item.lagerbestand, item.bedarfPeriodeX),
+                      margin: 'auto'
+                    }} 
                   />
                 </TableCell>
               </TableRow>
