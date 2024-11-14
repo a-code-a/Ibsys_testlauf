@@ -12,24 +12,7 @@ import {
 } from '@mui/material';
 import { useWorkflowStore } from '../store/workflowStore';
 import { useTranslation } from 'react-i18next';
-
-interface WorkstationData {
-  id: number;
-  capacityRequirements: string;
-  setupTimes: string;
-  capacityPreviousPeriods: string;
-  totalCapacityRequirements: string;
-  overtimes: string;
-  overtimePerDays: string;
-}
-
-interface ProductionItem {
-  bezeichnung: string;
-  finalesProdukt: string;
-  artikelnummer: string;
-  produktionsmenge: string;
-  workstations: {[key: number]: string};
-}
+import { CapacityPlanningData, ProductionItem, WorkstationData } from '../types/WorkflowTypes';
 
 export default function CapacityPlanning() {
   const { t } = useTranslation();
@@ -82,7 +65,7 @@ export default function CapacityPlanning() {
   ]);
 
   useEffect(() => {
-    const data = {
+    const data: CapacityPlanningData = {
       productionItems,
       workstationData
     };

@@ -7,6 +7,7 @@ import {
   TableContainer, 
   TableHead, 
   TableRow,
+  TextField,
   Button,
   Radio,
   IconButton,
@@ -16,13 +17,7 @@ import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import { useWorkflowStore } from '../store/workflowStore';
 import { useTranslation } from 'react-i18next';
-
-interface OrderItem {
-  id: string;
-  articleNumber: string;
-  amount: number;
-  selected: boolean;
-}
+import { ProductionPlanningData, OrderItem } from '../types/WorkflowTypes';
 
 export default function ProductionPlanning() {
   const { t } = useTranslation();
@@ -46,7 +41,7 @@ export default function ProductionPlanning() {
 
   // Aktualisiere die Daten im Store
   useEffect(() => {
-    const data = { orders };
+    const data: ProductionPlanningData = { orders };
     console.log('Setze Production Planning Daten:', data);
     setProductionPlanningData(data);
   }, [orders, setProductionPlanningData]);
@@ -56,8 +51,18 @@ export default function ProductionPlanning() {
       if (order.selected) {
         const halfAmount = Math.floor(order.amount / 2);
         return [
-          { ...order, amount: halfAmount, selected: false },
-          { ...order, id: order.id + '_split', amount: order.amount - halfAmount, selected: false }
+          { 
+            ...order, 
+            amount: halfAmount, 
+            selected: false,
+            id: `${order.id}_1`
+          },
+          { 
+            ...order, 
+            id: `${order.id}_2`, 
+            amount: order.amount - halfAmount, 
+            selected: false 
+          }
         ];
       }
       return [order];
@@ -82,12 +87,7 @@ export default function ProductionPlanning() {
           variant="contained" 
           color="primary" 
           onClick={handleSplitOrder}
-          sx={{ 
-           
-            '&:hover': {
-             
-            }
-          }}
+          disabled={!orders.some(order => order.selected)}
         >
           {t('BestellungAufteilen')}
         </Button>
@@ -136,14 +136,29 @@ export default function ProductionPlanning() {
                     onChange={() => {
                       const newOrders = orders.map(o => ({
                         ...o,
-                        selected: o.id === order.id ? !o.selected : o.selected
+                        selected: o.id === order.id ? !o.selected : false
                       }));
                       setOrders(newOrders);
                     }}
                   />
                 </TableCell>
                 <TableCell>{order.articleNumber}</TableCell>
-                <TableCell>{order.amount}</TableCell>
+                <TableCell>
+                  <TextField
+                    value={order.amount}
+                    size="small"
+                    type="number"
+                    onChange={(e) => {
+                      const newOrders = [...orders];
+                      const index = newOrders.findIndex(o => o.id === order.id);
+                      newOrders[index] = {
+                        ...newOrders[index],
+                        amount: Number(e.target.value)
+                      };
+                      setOrders(newOrders);
+                    }}
+                  />
+                </TableCell>
               </TableRow>
             ))}
           </TableBody>

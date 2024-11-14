@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { 
   Paper, 
   Table, 
@@ -7,157 +7,128 @@ import {
   TableContainer, 
   TableHead, 
   TableRow,
-  TextField,
   Typography
 } from '@mui/material';
+import { ApiService } from '../services/apiService';
 import { useWorkflowStore } from '../store/workflowStore';
 import { useTranslation } from 'react-i18next';
+import { ProductionProgramData, ProductItem, ForecastData } from '../types/WorkflowTypes';
 
 interface ProductionProgramProps {
-  forecast: {
-    _p1: string;
-    _p2: string;
-    _p3: string;
-  };
+    forecast?: ForecastData;
 }
 
-interface ProductData {
-  id: string;
-  name: string;
-  periods: {
-    [key: string]: {
-      sales: string;
-      production: string;
-    };
-  };
-}
+const ProductionProgram: React.FC<ProductionProgramProps> = ({ forecast }) => {
+    const { t } = useTranslation();
+    const [productionProgramData, setLocalProductionProgramData] = useState<ProductItem[]>([]);
+    const [loading, setLoading] = useState<boolean>(true);
+    const [error, setError] = useState<string | null>(null);
 
-export default function ProductionProgram({ forecast }: ProductionProgramProps) {
-  const { t } = useTranslation();
-  const { setProductionProgramData } = useWorkflowStore();
-  const [products, setProducts] = useState<ProductData[]>([
-    {
-      id: "P1",
-      name: t('Kinderrad'),
-      periods: {
-        "5": { sales: forecast._p1, production: forecast._p1 },
-        "6": { sales: "0", production: "0" },
-        "7": { sales: "0", production: "0" },
-        "8": { sales: "0", production: "0" }
-      }
-    },
-    {
-      id: "P2",
-      name: t('Damenrad'),
-      periods: {
-        "5": { sales: forecast._p2, production: forecast._p2 },
-        "6": { sales: "0", production: "0" },
-        "7": { sales: "0", production: "0" },
-        "8": { sales: "0", production: "0" }
-      }
-    },
-    {
-      id: "P3",
-      name: t('Herrenrad'),
-      periods: {
-        "5": { sales: forecast._p3, production: forecast._p3 },
-        "6": { sales: "0", production: "0" },
-        "7": { sales: "0", production: "0" },
-        "8": { sales: "0", production: "0" }
-      }
-    }
-  ]);
+    // Zugriff auf den Workflow-Store
+    const { setProductionProgramData } = useWorkflowStore();
 
-  useEffect(() => {
-    console.log('Aktualisiere Produktionsprogramm-Daten:', { products });
-    setProductionProgramData({ products });
-  }, [products, setProductionProgramData]);
-
-  const handleValueChange = (
-    productId: string,
-    period: string,
-    field: 'sales' | 'production',
-    value: string
-  ) => {
-    setProducts(prevProducts => {
-      const newProducts = prevProducts.map(product => {
-        if (product.id === productId) {
-          return {
-            ...product,
-            periods: {
-              ...product.periods,
-              [period]: {
-                ...product.periods[period],
-                [field]: value
-              }
+    useEffect(() => {
+        const fetchProductionProgram = async () => {
+            try {
+                // Beispiel-Aufruf des ApiService
+                const data = await ApiService.getSaleAndProductionProgram();
+                
+                // Daten im lokalen State speichern
+                setLocalProductionProgramData(data || []);
+                
+                // Daten im Workflow-Store speichern
+                setProductionProgramData({ products: data || [] });
+                
+                setLoading(false);
+            } catch (err) {
+                setError(t('FehlerBeimLadenDesProgramms'));
+                setLoading(false);
+                console.error(err);
             }
-          };
-        }
-        return product;
-      });
-      return newProducts;
-    });
-  };
+        };
 
-  return (
-    <Paper sx={{ p: 2, width: '100%' }}>
-      <Typography variant="h6" gutterBottom>
-        {t('Produktionsprogramm')}
-      </Typography>
-      <TableContainer>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>{t('Produkt')} \ {t('Periode')}</TableCell>
-              <TableCell align="center" colSpan={2}>5 ({t('Auftrag')})</TableCell>
-              <TableCell align="center" colSpan={2}>6 ({t('Vorhersage')})</TableCell>
-              <TableCell align="center" colSpan={2}>7 ({t('Vorhersage')})</TableCell>
-              <TableCell align="center" colSpan={2}>8 ({t('Vorhersage')})</TableCell>
-            </TableRow>
-            <TableRow>
-              <TableCell></TableCell>
-              <TableCell align="center">{t('Verkauf')}</TableCell>
-              <TableCell align="center">{t('Produktion')}</TableCell>
-              <TableCell align="center">{t('Verkauf')}</TableCell>
-              <TableCell align="center">{t('Produktion')}</TableCell>
-              <TableCell align="center">{t('Verkauf')}</TableCell>
-              <TableCell align="center">{t('Produktion')}</TableCell>
-              <TableCell align="center">{t('Verkauf')}</TableCell>
-              <TableCell align="center">{t('Produktion')}</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {products.map((product) => (
-              <TableRow key={product.id}>
-                <TableCell>{t(product.name)}</TableCell>
-                {["5", "6", "7", "8"].map((period) => (
-                  <React.Fragment key={period}>
-                    <TableCell>
-                      <TextField
-                        value={product.periods[period].sales}
-                        onChange={(e) => handleValueChange(product.id, period, 'sales', e.target.value)}
-                        variant="outlined"
-                        size="small"
-                        type="number"
-                        disabled={period === "5"}
-                      />
-                    </TableCell>
-                    <TableCell>
-                      <TextField
-                        value={product.periods[period].production}
-                        onChange={(e) => handleValueChange(product.id, period, 'production', e.target.value)}
-                        variant="outlined"
-                        size="small"
-                        type="number"
-                      />
-                    </TableCell>
-                  </React.Fragment>
-                ))}
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
-    </Paper>
-  );
-}
+        // Wenn Forecast vorhanden, generiere Standarddaten
+        if (forecast) {
+            const defaultProducts: ProductItem[] = [
+                {
+                    id: "P1",
+                    name: t('Kinderrad'),
+                    periods: {
+                        "5": { sales: forecast._p1, production: forecast._p1 },
+                        "6": { sales: "0", production: "0" },
+                        "7": { sales: "0", production: "0" },
+                        "8": { sales: "0", production: "0" }
+                    }
+                },
+                {
+                    id: "P2",
+                    name: t('Damenrad'),
+                    periods: {
+                        "5": { sales: forecast._p2, production: forecast._p2 },
+                        "6": { sales: "0", production: "0" },
+                        "7": { sales: "0", production: "0" },
+                        "8": { sales: "0", production: "0" }
+                    }
+                },
+                {
+                    id: "P3",
+                    name: t('Herrenrad'),
+                    periods: {
+                        "5": { sales: forecast._p3, production: forecast._p3 },
+                        "6": { sales: "0", production: "0" },
+                        "7": { sales: "0", production: "0" },
+                        "8": { sales: "0", production: "0" }
+                    }
+                }
+            ];
+            
+            setLocalProductionProgramData(defaultProducts);
+            setProductionProgramData({ products: defaultProducts });
+            setLoading(false);
+        } else {
+            fetchProductionProgram();
+        }
+    }, [forecast, setProductionProgramData, t]);
+
+    if (loading) return <Typography>{t('Laden')}</Typography>;
+    if (error) return <Typography color="error">{error}</Typography>;
+
+    return (
+        <Paper sx={{ width: '100%', overflow: 'auto' }}>
+            <Typography variant="h6" sx={{ p: 2 }}>{t('Produktionsprogramm')}</Typography>
+            
+            {forecast && (
+                <Typography sx={{ p: 2 }}>
+                    {t('Prognose')}: P1 = {forecast._p1}, P2 = {forecast._p2}, P3 = {forecast._p3}
+                </Typography>
+            )}
+
+            <TableContainer>
+                <Table size="small">
+                    <TableHead>
+                        <TableRow>
+                            <TableCell>{t('Produkt')}</TableCell>
+                            <TableCell>{t('Periode5Verkauf')}</TableCell>
+                            <TableCell>{t('Periode5Produktion')}</TableCell>
+                            <TableCell>{t('Periode6Verkauf')}</TableCell>
+                            <TableCell>{t('Periode6Produktion')}</TableCell>
+                        </TableRow>
+                    </TableHead>
+                    <TableBody>
+                        {productionProgramData.map((product) => (
+                            <TableRow key={product.id}>
+                                <TableCell>{product.name}</TableCell>
+                                <TableCell>{product.periods?.["5"]?.sales || "0"}</TableCell>
+                                <TableCell>{product.periods?.["5"]?.production || "0"}</TableCell>
+                                <TableCell>{product.periods?.["6"]?.sales || "0"}</TableCell>
+                                <TableCell>{product.periods?.["6"]?.production || "0"}</TableCell>
+                            </TableRow>
+                        ))}
+                    </TableBody>
+                </Table>
+            </TableContainer>
+        </Paper>
+    );
+};
+
+export default ProductionProgram;

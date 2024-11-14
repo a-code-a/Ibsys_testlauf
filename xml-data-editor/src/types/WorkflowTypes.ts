@@ -1,18 +1,39 @@
-export interface ProductionProgramData {
-  products: Array<{
-    id: string;
-    name: string;
-    periods: {
-      [key: string]: {
-        sales: string;
-        production: string;
-      };
-    };
-  }>;
+export interface ForecastData {
+    _p1: string;
+    _p2: string;
+    _p3: string;
 }
 
-export interface MaterialPlanningData {
-  items: Array<{
+export interface ProductItem {
+    id: string;
+    name: string;
+    periods?: {
+        [key: string]: {
+            sales: string;
+            production: string;
+        }
+    };
+}
+
+export interface ProductionItem {
+    bezeichnung: string;
+    finalesProdukt: string;
+    artikelnummer: string;
+    produktionsmenge: string;
+    workstations: {[key: number]: string};
+}
+
+export interface WorkstationData {
+    id: number;
+    capacityRequirements: string;
+    setupTimes: string;
+    capacityPreviousPeriods: string;
+    totalCapacityRequirements: string;
+    overtimes: string;
+    overtimePerDays: string;
+}
+
+export interface MaterialRowData {
     id: string;
     name: string;
     auftrag: string;
@@ -22,30 +43,17 @@ export interface MaterialPlanningData {
     warteschlange: string;
     laufend: string;
     produktion: string;
-  }>;
 }
 
-export interface CapacityPlanningData {
-  productionItems: Array<{
-    bezeichnung: string;
-    finalesProdukt: string;
-    artikelnummer: string;
-    produktionsmenge: string;
-    workstations: { [key: number]: string };
-  }>;
-  workstationData: Array<{
-    id: number;
-    capacityRequirements: string;
-    setupTimes: string;
-    capacityPreviousPeriods: string;
-    totalCapacityRequirements: string;
-    overtimes: string;
-    overtimePerDays: string;
-  }>;
+export interface OrderItem {
+    id: string;
+    articleNumber: string;
+    amount: number;
+    selected?: boolean;
+    [key: string]: any;
 }
 
-export interface ProcurementPlanningData {
-  items: Array<{
+export interface ProcurementItem {
     produkt: string;
     lieferzeit: string;
     abweichung: string;
@@ -61,56 +69,56 @@ export interface ProcurementPlanningData {
     bestellmenge: string;
     bestelltyp: string;
     ausstehendeBestellung: string;
-  }>;
+}
+
+export interface ProductionProgramData {
+    products?: ProductItem[];
+    [key: string]: any;
+}
+
+export interface MaterialPlanningData {
+    items?: MaterialRowData[];
+    [key: string]: any;
+}
+
+export interface CapacityPlanningData {
+    productionItems?: ProductionItem[];
+    workstationData?: WorkstationData[];
+    [key: string]: any;
+}
+
+export interface ProcurementPlanningData {
+    items?: ProcurementItem[];
+    [key: string]: any;
 }
 
 export interface ProductionPlanningData {
-  orders: Array<{
-    id: string;
-    articleNumber: string;
-    amount: number;
-    selected: boolean;
-  }>;
+    orders?: OrderItem[];
+    [key: string]: any;
 }
 
 export interface ResultsData {
-  productionProgram: Array<{
-    artikel: string;
-    produktionsmenge: string;
-    direktverkauf: string;
-    verkaufsmenge: string;
-    verkaufspreis: string;
-    strafe: string;
-  }>;
-  orders: Array<{
-    artikel: string;
-    menge: string;
-    modus: string;
-  }>;
-  productionPlanning: Array<{
-    artikel: string;
-    menge: string;
-  }>;
-  capacityPlanning: Array<{
-    station: string;
-    uberstunden: string;
-    schicht: string;
-  }>;
+    productionProgram?: any[];
+    orders?: any[];
+    productionPlanning?: any[];
+    capacityPlanning?: any[];
+    [key: string]: any;
 }
 
 export interface WorkflowState {
-  currentStep: number;
-  productionProgramData: ProductionProgramData | null;
-  materialPlanningData: MaterialPlanningData | null;
-  capacityPlanningData: CapacityPlanningData | null;
-  procurementPlanningData: ProcurementPlanningData | null;
-  productionPlanningData: ProductionPlanningData | null;
-  resultsData: ResultsData | null;
-  setCurrentStep: (step: number) => void;
-  setProductionProgramData: (data: ProductionProgramData) => void;
-  setMaterialPlanningData: (data: MaterialPlanningData) => void;
-  setCapacityPlanningData: (data: CapacityPlanningData) => void;
-  setProcurementPlanningData: (data: ProcurementPlanningData) => void;
-  setProductionPlanningData: (data: ProductionPlanningData) => void;
-  setResultsData: (data: ResultsData) => void;
+    currentStep: number;
+    productionProgramData: ProductionProgramData | null;
+    materialPlanningData: MaterialPlanningData | null;
+    capacityPlanningData: CapacityPlanningData | null;
+    procurementPlanningData: ProcurementPlanningData | null;
+    productionPlanningData: ProductionPlanningData | null;
+    resultsData: ResultsData | null;
+
+    setCurrentStep: (step: number) => void;
+    setProductionProgramData: (data: ProductionProgramData) => void;
+    setMaterialPlanningData: (data: MaterialPlanningData) => void;
+    setCapacityPlanningData: (data: CapacityPlanningData) => void;
+    setProcurementPlanningData: (data: ProcurementPlanningData) => void;
+    setProductionPlanningData: (data: ProductionPlanningData) => void;
+    setResultsData: (data: ResultsData) => void;
 }

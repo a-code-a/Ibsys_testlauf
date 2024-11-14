@@ -9,10 +9,12 @@ import {
   TableRow,
   Tabs,
   Tab,
-  Box
+  Box,
+  Typography
 } from '@mui/material';
 import { useWorkflowStore } from '../store/workflowStore';
 import { useTranslation } from 'react-i18next';
+import { ResultsData } from '../types/WorkflowTypes';
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -23,8 +25,17 @@ interface TabPanelProps {
 function TabPanel(props: TabPanelProps) {
   const { children, value, index, ...other } = props;
   return (
-    <div role="tabpanel" hidden={value !== index} {...other}>
-      {value === index && <Box sx={{ p: 3 }}>{children}</Box>}
+    <div
+      role="tabpanel"
+      hidden={value !== index}
+      id={`results-tabpanel-${index}`}
+      {...other}
+    >
+      {value === index && (
+        <Box sx={{ p: 3 }}>
+          {children}
+        </Box>
+      )}
     </div>
   );
 }
@@ -34,17 +45,19 @@ const Results: React.FC = () => {
   const { setResultsData } = useWorkflowStore();
   const [tabValue, setTabValue] = useState(0);
 
-  const [productionProgram] = useState([
-    { artikel: 'P1', produktionsmenge: '200', direktverkauf: '0', verkaufsmenge: '0', verkaufspreis: '0', strafe: '0' },
-    { artikel: 'P2', produktionsmenge: '150', direktverkauf: '0', verkaufsmenge: '0', verkaufspreis: '0', strafe: '0' },
-    { artikel: 'P3', produktionsmenge: '100', direktverkauf: '0', verkaufsmenge: '0', verkaufspreis: '0', strafe: '0' }
+  const [productionProgram, setProductionProgram] = useState<any[]>([
+    { artikel: 'P1', produktionsmenge: '200', direktverkauf: '0', verkaufsmenge: '200', verkaufspreis: '100', strafe: '0' },
+    { artikel: 'P2', produktionsmenge: '150', direktverkauf: '0', verkaufsmenge: '150', verkaufspreis: '100', strafe: '0' },
+    { artikel: 'P3', produktionsmenge: '250', direktverkauf: '0', verkaufsmenge: '250', verkaufspreis: '100', strafe: '0' }
   ]);
 
-  const [orders] = useState([
-    { artikel: 'Nothing to order', menge: '', modus: '' }
+  const [orders, setOrders] = useState<any[]>([
+    { artikel: 'P1', menge: '200', modus: 'Normal' },
+    { artikel: 'P2', menge: '150', modus: 'Normal' },
+    { artikel: 'P3', menge: '250', modus: 'Normal' }
   ]);
 
-  const [productionPlanning] = useState([
+  const [productionPlanning, setProductionPlanning] = useState<any[]>([
     { artikel: '16', menge: '130' },
     { artikel: '17', menge: '450' },
     { artikel: '26', menge: '270' },
@@ -54,7 +67,7 @@ const Results: React.FC = () => {
     { artikel: '4', menge: '200' }
   ]);
 
-  const [capacityPlanning] = useState([
+  const [capacityPlanning, setCapacityPlanning] = useState<any[]>([
     { station: '1', uberstunden: '72', schicht: '1' },
     { station: '2', uberstunden: '0', schicht: '1' },
     { station: '3', uberstunden: '32', schicht: '1' },
@@ -73,7 +86,7 @@ const Results: React.FC = () => {
   ]);
 
   useEffect(() => {
-    const data = {
+    const data: ResultsData = {
       productionProgram,
       orders,
       productionPlanning,
@@ -87,6 +100,29 @@ const Results: React.FC = () => {
     setTabValue(newValue);
   };
 
+  const renderTable = (data: any[], columns: string[]) => (
+    <TableContainer>
+      <Table size="small">
+        <TableHead>
+          <TableRow>
+            {columns.map((column) => (
+              <TableCell key={column}>{t(column)}</TableCell>
+            ))}
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {data.map((row, index) => (
+            <TableRow key={index}>
+              {Object.values(row).map((value, cellIndex) => (
+                <TableCell key={cellIndex}>{value as string}</TableCell>
+              ))}
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </TableContainer>
+  );
+
   return (
     <Paper sx={{ width: '100%' }}>
       <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
@@ -99,99 +135,19 @@ const Results: React.FC = () => {
       </Box>
 
       <TabPanel value={tabValue} index={0}>
-        <TableContainer>
-          <Table size="small">
-            <TableHead>
-              <TableRow>
-                <TableCell>{t('Artikel')}</TableCell>
-                <TableCell>{t('Produktionsmenge')}</TableCell>
-                <TableCell>{t('Direktverkauf')}</TableCell>
-                <TableCell>{t('Verkaufsmenge')}</TableCell>
-                <TableCell>{t('Verkaufspreis')}</TableCell>
-                <TableCell>{t('Strafe')}</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {productionProgram.map((row) => (
-                <TableRow key={row.artikel}>
-                  <TableCell>{row.artikel}</TableCell>
-                  <TableCell>{row.produktionsmenge}</TableCell>
-                  <TableCell>{row.direktverkauf}</TableCell>
-                  <TableCell>{row.verkaufsmenge}</TableCell>
-                  <TableCell>{row.verkaufspreis}</TableCell>
-                  <TableCell>{row.strafe}</TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
+        {renderTable(productionProgram, ['Artikel', 'Produktionsmenge', 'Direktverkauf', 'Verkaufsmenge', 'Verkaufspreis', 'Strafe'])}
       </TabPanel>
 
       <TabPanel value={tabValue} index={1}>
-        <TableContainer>
-          <Table size="small">
-            <TableHead>
-              <TableRow>
-                <TableCell>{t('Artikel')}</TableCell>
-                <TableCell>{t('Menge')}</TableCell>
-                <TableCell>{t('Bestelltyp')}</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {orders.map((row) => (
-                <TableRow key={row.artikel}>
-                  <TableCell>{row.artikel}</TableCell>
-                  <TableCell>{row.menge}</TableCell>
-                  <TableCell>{row.modus}</TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
+        {renderTable(orders, ['Artikel', 'Menge', 'Bestelltyp'])}
       </TabPanel>
 
       <TabPanel value={tabValue} index={2}>
-        <TableContainer>
-          <Table size="small">
-            <TableHead>
-              <TableRow>
-                <TableCell>{t('Artikel')}</TableCell>
-                <TableCell>{t('Menge')}</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {productionPlanning.map((row) => (
-                <TableRow key={row.artikel}>
-                  <TableCell>{row.artikel}</TableCell>
-                  <TableCell>{row.menge}</TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
+        {renderTable(productionPlanning, ['Artikel', 'Menge'])}
       </TabPanel>
 
       <TabPanel value={tabValue} index={3}>
-        <TableContainer>
-          <Table size="small">
-            <TableHead>
-              <TableRow>
-                <TableCell>{t('Station')}</TableCell>
-                <TableCell>{t('Überstunden')}</TableCell>
-                <TableCell>{t('Schicht')}</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {capacityPlanning.map((row) => (
-                <TableRow key={row.station}>
-                  <TableCell>{row.station}</TableCell>
-                  <TableCell>{row.uberstunden}</TableCell>
-                  <TableCell>{row.schicht}</TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
+        {renderTable(capacityPlanning, ['Station', 'Überstunden', 'Schicht'])}
       </TabPanel>
     </Paper>
   );

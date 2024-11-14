@@ -6,6 +6,7 @@ import { WorkflowContainer } from './workflow/WorkflowContainer';
 import { useWorkflowStore } from './store/workflowStore';
 import { useTranslation } from 'react-i18next';
 import LanguageSelector from './components/LanguageSelector';
+import { ProductionProgramData } from './types/WorkflowTypes';
 
 function App() {
   const [xmlData, setXmlData] = useState<XMLData | null>(null);
@@ -28,7 +29,7 @@ function App() {
   // Initialisiere die Daten, wenn xmlData sich ändert
   useEffect(() => {
     if (xmlData?.results?.forecast) {
-      const initialProductionProgram = {
+      const initialProductionProgram: ProductionProgramData = {
         products: [
           {
             id: "P1",

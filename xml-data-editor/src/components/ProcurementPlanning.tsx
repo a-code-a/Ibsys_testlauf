@@ -12,28 +12,11 @@ import {
 } from '@mui/material';
 import { useWorkflowStore } from '../store/workflowStore';
 import { useTranslation } from 'react-i18next';
+import { ProcurementPlanningData, ProcurementItem } from '../types/WorkflowTypes';
 
-interface ProcurementItem {
-  produkt: string;
-  lieferzeit: string;
-  abweichung: string;
-  anzahlP1: string;
-  anzahlP2: string;
-  anzahlP3: string;
-  rabattMenge: string;
-  lagerbestand: string;
-  bedarfPeriodeX: string;
-  bedarfPeriodeX1: string;
-  bedarfPeriodeX2: string;
-  bedarfPeriodeX3: string;
-  bestellmenge: string;
-  bestelltyp: string;
-  ausstehendeBestellung: string;
-}
-
-const getTrafficLightColor = (lagerbestand: string, bedarf: string): string => {
-  const lagerbestandNum = parseFloat(lagerbestand);
-  const bedarfNum = parseFloat(bedarf);
+const getTrafficLightColor = (lagerbestand: string | undefined, bedarf: string | undefined): string => {
+  const lagerbestandNum = parseFloat(lagerbestand || '0');
+  const bedarfNum = parseFloat(bedarf || '0');
   
   if (isNaN(lagerbestandNum) || isNaN(bedarfNum)) return 'gray';
   
@@ -102,7 +85,9 @@ export default function ProcurementPlanning() {
   ]);
 
   useEffect(() => {
-    const data = { items: procurementItems };
+    const data: ProcurementPlanningData = { 
+      items: procurementItems 
+    };
     console.log('Setze Procurement Planning Daten:', data);
     setProcurementPlanningData(data);
   }, [procurementItems, setProcurementPlanningData]);
@@ -143,98 +128,98 @@ export default function ProcurementPlanning() {
                 <TableCell>{item.produkt}</TableCell>
                 <TableCell>
                   <TextField
-                    value={item.lieferzeit}
+                    value={item.lieferzeit || ''}
                     size="small"
                     onChange={(e) => handleValueChange(index, 'lieferzeit', e.target.value)}
                   />
                 </TableCell>
                 <TableCell>
                   <TextField
-                    value={item.abweichung}
+                    value={item.abweichung || ''}
                     size="small"
                     onChange={(e) => handleValueChange(index, 'abweichung', e.target.value)}
                   />
                 </TableCell>
                 <TableCell>
                   <TextField
-                    value={item.anzahlP1}
+                    value={item.anzahlP1 || ''}
                     size="small"
                     onChange={(e) => handleValueChange(index, 'anzahlP1', e.target.value)}
                   />
                 </TableCell>
                 <TableCell>
                   <TextField
-                    value={item.anzahlP2}
+                    value={item.anzahlP2 || ''}
                     size="small"
                     onChange={(e) => handleValueChange(index, 'anzahlP2', e.target.value)}
                   />
                 </TableCell>
                 <TableCell>
                   <TextField
-                    value={item.anzahlP3}
+                    value={item.anzahlP3 || ''}
                     size="small"
                     onChange={(e) => handleValueChange(index, 'anzahlP3', e.target.value)}
                   />
                 </TableCell>
                 <TableCell>
                   <TextField
-                    value={item.rabattMenge}
+                    value={item.rabattMenge || ''}
                     size="small"
                     onChange={(e) => handleValueChange(index, 'rabattMenge', e.target.value)}
                   />
                 </TableCell>
                 <TableCell>
                   <TextField
-                    value={item.lagerbestand}
+                    value={item.lagerbestand || ''}
                     size="small"
                     onChange={(e) => handleValueChange(index, 'lagerbestand', e.target.value)}
                   />
                 </TableCell>
                 <TableCell>
                   <TextField
-                    value={item.bedarfPeriodeX}
+                    value={item.bedarfPeriodeX || ''}
                     size="small"
                     onChange={(e) => handleValueChange(index, 'bedarfPeriodeX', e.target.value)}
                   />
                 </TableCell>
                 <TableCell>
                   <TextField
-                    value={item.bedarfPeriodeX1}
+                    value={item.bedarfPeriodeX1 || ''}
                     size="small"
                     onChange={(e) => handleValueChange(index, 'bedarfPeriodeX1', e.target.value)}
                   />
                 </TableCell>
                 <TableCell>
                   <TextField
-                    value={item.bedarfPeriodeX2}
+                    value={item.bedarfPeriodeX2 || ''}
                     size="small"
                     onChange={(e) => handleValueChange(index, 'bedarfPeriodeX2', e.target.value)}
                   />
                 </TableCell>
                 <TableCell>
                   <TextField
-                    value={item.bedarfPeriodeX3}
+                    value={item.bedarfPeriodeX3 || ''}
                     size="small"
                     onChange={(e) => handleValueChange(index, 'bedarfPeriodeX3', e.target.value)}
                   />
                 </TableCell>
                 <TableCell>
                   <TextField
-                    value={item.bestellmenge}
+                    value={item.bestellmenge || ''}
                     size="small"
                     onChange={(e) => handleValueChange(index, 'bestellmenge', e.target.value)}
                   />
                 </TableCell>
                 <TableCell>
                   <TextField
-                    value={item.bestelltyp}
+                    value={item.bestelltyp || ''}
                     size="small"
                     onChange={(e) => handleValueChange(index, 'bestelltyp', e.target.value)}
                   />
                 </TableCell>
                 <TableCell>
                   <TextField
-                    value={item.ausstehendeBestellung}
+                    value={item.ausstehendeBestellung || ''}
                     size="small"
                     onChange={(e) => handleValueChange(index, 'ausstehendeBestellung', e.target.value)}
                   />
