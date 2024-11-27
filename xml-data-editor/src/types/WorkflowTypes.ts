@@ -109,9 +109,9 @@ export interface WarehouseStock {
     _id: string;
     _amount: string;
     _startamount: string;
-    _pct: string;
-    _price: string;
-    _stockvalue: string;
+    _pct?: string;
+    _price?: string;
+    _stockvalue?: string;
   }>;
   totalstockvalue: string;
 }

@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Container, Paper, Button, Typography, TextField } from '@mui/material';
+import { Box, Container, Paper, Button, Typography, TextField, Snackbar, Alert, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions } from '@mui/material';
 import { XMLParser, XMLBuilder } from 'fast-xml-parser';
 import { XMLData } from './types';
 import { WorkflowContainer } from './workflow/WorkflowContainer';
 import { useWorkflowStore } from './store/workflowStore';
 import { useTranslation } from 'react-i18next';
 import LanguageSelector from './components/LanguageSelector';
+import { ApiService } from './services/apiService';
+import { WarehouseStock } from './types/WorkflowTypes';
 
 function App() {
   const [xmlData, setXmlData] = useState<XMLData | null>(null);
@@ -24,6 +26,10 @@ function App() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [backendTestResult, setBackendTestResult] = useState<string | null>(null);
+  const [openSnackbar, setOpenSnackbar] = useState(false);
+  const [openDebugDialog, setOpenDebugDialog] = useState(false);
+  const [debugDetails, setDebugDetails] = useState<any>(null);
 
   const handleLogin = () => {
     if (username === 'admin' && password === 'p') {
@@ -37,183 +43,88 @@ function App() {
   // Initialisiere alle Workflow-Daten, wenn xmlData sich ändert
   useEffect(() => {
     if (xmlData?.results) {
-      // Forecast setzen
-      const forecast = {
-        _p1: xmlData.results.forecast._p1,
-        _p2: xmlData.results.forecast._p2,
-        _p3: xmlData.results.forecast._p3
-      };
-      setForecast(forecast);
+      try {
+        // Forecast setzen
+        const forecast = {
+          _p1: xmlData.results.forecast?._p1 || '0',
+          _p2: xmlData.results.forecast?._p2 || '0',
+          _p3: xmlData.results.forecast?._p3 || '0'
+        };
+        setForecast(forecast);
 
-      // Warehousestock setzen
-      setWarehousestock(xmlData.results.warehousestock);
+        // Warehousestock setzen mit Fallback-Werten
+        const warehouseStock: WarehouseStock = {
+          article: (xmlData.results.warehousestock?.article || []).map(article => ({
+            _id: article._id || '',
+            _amount: article._amount || '0',
+            _startamount: article._startamount || '0',
+            _pct: article._pct || '0',
+            _price: article._price || '0',
+            _stockvalue: article._stockvalue || '0'
+          })),
+          totalstockvalue: xmlData.results.warehousestock?.totalstockvalue || '0'
+        };
+        setWarehousestock(warehouseStock);
 
-      // 1. Produktionsprogramm
-      const initialProductionProgram = {
-        products: [
-          {
-            id: "P1",
-            name: "Kinderrad",
-            periods: {
-              "5": { sales: xmlData.results.forecast._p1, production: xmlData.results.forecast._p1 },
-              "6": { sales: "0", production: "0" },
-              "7": { sales: "0", production: "0" },
-              "8": { sales: "0", production: "0" }
+        // Restliche Workflow-Initialisierung
+        const initialProductionProgram = {
+          products: [
+            {
+              id: "P1",
+              name: "Kinderrad",
+              periods: {
+                "5": { sales: forecast._p1, production: forecast._p1 },
+                "6": { sales: "0", production: "0" },
+                "7": { sales: "0", production: "0" },
+                "8": { sales: "0", production: "0" }
+              }
+            },
+            {
+              id: "P2",
+              name: "Damenrad",
+              periods: {
+                "5": { sales: forecast._p2, production: forecast._p2 },
+                "6": { sales: "0", production: "0" },
+                "7": { sales: "0", production: "0" },
+                "8": { sales: "0", production: "0" }
+              }
+            },
+            {
+              id: "P3",
+              name: "Herrenrad",
+              periods: {
+                "5": { sales: forecast._p3, production: forecast._p3 },
+                "6": { sales: "0", production: "0" },
+                "7": { sales: "0", production: "0" },
+                "8": { sales: "0", production: "0" }
+              }
             }
-          },
-          {
-            id: "P2",
-            name: "Damenrad",
-            periods: {
-              "5": { sales: xmlData.results.forecast._p2, production: xmlData.results.forecast._p2 },
-              "6": { sales: "0", production: "0" },
-              "7": { sales: "0", production: "0" },
-              "8": { sales: "0", production: "0" }
-            }
-          },
-          {
-            id: "P3",
-            name: "Herrenrad",
-            periods: {
-              "5": { sales: xmlData.results.forecast._p3, production: xmlData.results.forecast._p3 },
-              "6": { sales: "0", production: "0" },
-              "7": { sales: "0", production: "0" },
-              "8": { sales: "0", production: "0" }
-            }
-          }
-        ]
-      };
-      setProductionProgramData(initialProductionProgram);
+          ]
+        };
+        setProductionProgramData(initialProductionProgram);
 
-      // 2. Materialplanung
-      const initialMaterialPlanning = {
-        items: xmlData.results.warehousestock.article.map(article => ({
-          id: article._id,
-          name: `Artikel ${article._id}`,
-          auftrag: "0",
-          vorherige: article._startamount,
-          sicherheit: "0",
-          lager: article._amount,
-          warteschlange: "0",
-          laufend: "0",
-          produktion: "0"
-        }))
-      };
-      setMaterialPlanningData(initialMaterialPlanning);
+        const initialMaterialPlanning = {
+          items: warehouseStock.article.map(article => ({
+            id: article._id,
+            name: `Artikel ${article._id}`,
+            auftrag: "0",
+            vorherige: article._startamount,
+            sicherheit: "0",
+            lager: article._amount,
+            warteschlange: "0",
+            laufend: "0",
+            produktion: "0"
+          }))
+        };
+        setMaterialPlanningData(initialMaterialPlanning);
 
-      // 3. Kapazitätsplanung (Platzhalter-Daten)
-      const initialCapacityPlanning = {
-        productionItems: [
-          {
-            bezeichnung: "Kinderrad",
-            finalesProdukt: "P1",
-            artikelnummer: "1",
-            produktionsmenge: xmlData.results.forecast._p1,
-            workstations: { 1: "10", 2: "20" }
-          },
-          {
-            bezeichnung: "Damenrad",
-            finalesProdukt: "P2",
-            artikelnummer: "2",
-            produktionsmenge: xmlData.results.forecast._p2,
-            workstations: { 1: "15", 2: "25" }
-          },
-          {
-            bezeichnung: "Herrenrad",
-            finalesProdukt: "P3",
-            artikelnummer: "3",
-            produktionsmenge: xmlData.results.forecast._p3,
-            workstations: { 1: "12", 2: "22" }
-          }
-        ],
-        workstationData: [
-          {
-            id: 1,
-            capacityRequirements: "100",
-            setupTimes: "20",
-            capacityPreviousPeriods: "50",
-            totalCapacityRequirements: "170",
-            overtimes: "10",
-            overtimePerDays: "2"
-          },
-          {
-            id: 2,
-            capacityRequirements: "120",
-            setupTimes: "25",
-            capacityPreviousPeriods: "60",
-            totalCapacityRequirements: "205",
-            overtimes: "15",
-            overtimePerDays: "3"
-          }
-        ]
-      };
-      setCapacityPlanningData(initialCapacityPlanning);
-
-      // 4. Beschaffungsplanung (Platzhalter-Daten)
-      const initialProcurementPlanning = {
-        items: xmlData.results.warehousestock.article.map(article => ({
-          produkt: article._id,
-          lieferzeit: "5",
-          abweichung: "1",
-          anzahlP1: "0",
-          anzahlP2: "0",
-          anzahlP3: "0",
-          rabattMenge: "100",
-          lagerbestand: article._amount,
-          bedarfPeriodeX: "0",
-          bedarfPeriodeX1: "0",
-          bedarfPeriodeX2: "0",
-          bedarfPeriodeX3: "0",
-          bestellmenge: "0",
-          bestelltyp: "0",
-          ausstehendeBestellung: "0"
-        }))
-      };
-      setProcurementPlanningData(initialProcurementPlanning);
-
-      // 5. Produktionsplanung (Platzhalter-Daten)
-      const initialProductionPlanning = {
-        orders: [
-          { id: "1", articleNumber: "P1", amount: parseInt(xmlData.results.forecast._p1), selected: false },
-          { id: "2", articleNumber: "P2", amount: parseInt(xmlData.results.forecast._p2), selected: false },
-          { id: "3", articleNumber: "P3", amount: parseInt(xmlData.results.forecast._p3), selected: false }
-        ]
-      };
-      setProductionPlanningData(initialProductionPlanning);
-
-      // 6. Ergebnisse (Platzhalter-Daten)
-      const initialResults = {
-        productionProgram: [
-          {
-            artikel: "P1",
-            produktionsmenge: xmlData.results.forecast._p1,
-            direktverkauf: "0",
-            verkaufsmenge: xmlData.results.forecast._p1,
-            verkaufspreis: "100",
-            strafe: "0"
-          },
-          {
-            artikel: "P2",
-            produktionsmenge: xmlData.results.forecast._p2,
-            direktverkauf: "0",
-            verkaufsmenge: xmlData.results.forecast._p2,
-            verkaufspreis: "150",
-            strafe: "0"
-          },
-          {
-            artikel: "P3",
-            produktionsmenge: xmlData.results.forecast._p3,
-            direktverkauf: "0",
-            verkaufsmenge: xmlData.results.forecast._p3,
-            verkaufspreis: "200",
-            strafe: "0"
-          }
-        ],
-        orders: [],
-        productionPlanning: [],
-        capacityPlanning: []
-      };
-      setResultsData(initialResults);
+      } catch (initError) {
+        console.error('Fehler bei der Workflow-Initialisierung:', initError);
+        setBackendTestResult('Fehler bei der Dateninitialisierung');
+        setDebugDetails(initError);
+        setOpenSnackbar(true);
+        setOpenDebugDialog(true);
+      }
     }
   }, [
     xmlData, 
@@ -226,6 +137,76 @@ function App() {
     setForecast,
     setWarehousestock
   ]);
+
+  const testBackendCommunication = async () => {
+    try {
+      // Umfassende Backend-Kommunikationstests
+      const testEndpoints = [
+        { name: 'Forecast', method: ApiService.getForecast },
+        { name: 'Warehouse Stock', method: ApiService.getWarehouseStock, optional: true },
+        { name: 'Sale and Production Program', method: ApiService.getSaleAndProductionProgram },
+        { name: 'Material Plan', method: ApiService.getMaterialPlan },
+        { name: 'Capacity Plan', method: ApiService.getCapacityPlan },
+        { name: 'Production Orders', method: ApiService.getProductionOrders }
+      ];
+
+      const testResults = [];
+
+      for (const endpoint of testEndpoints) {
+        try {
+          const result = await endpoint.method();
+          testResults.push(`${endpoint.name}: Erfolgreich`);
+          console.log(`${endpoint.name} Test Result:`, result);
+        } catch (endpointError) {
+          if (!endpoint.optional) {
+            testResults.push(`${endpoint.name}: Fehler`);
+          } else {
+            testResults.push(`${endpoint.name}: Optional-Fehler`);
+          }
+          console.error(`${endpoint.name} Test Error:`, endpointError);
+        }
+      }
+      
+      // Wenn XML-Daten vorhanden sind, importiere sie
+      if (xmlData) {
+        try {
+          await ApiService.importXmlData(xmlData);
+          testResults.push('XML Import: Erfolgreich');
+        } catch (importError) {
+          testResults.push('XML Import: Fehler');
+          console.error('XML Import Error:', importError);
+        }
+      }
+
+      // Zusammenfassende Ergebnismeldung
+      const successfulTests = testResults.filter(result => 
+        result.includes('Erfolgreich') || result.includes('Optional-Fehler')
+      ).length;
+      const totalTests = testResults.length;
+      
+      const resultMessage = `Backend-Test: ${successfulTests}/${totalTests} Endpunkte erfolgreich`;
+      
+      setBackendTestResult(resultMessage);
+      setDebugDetails(testResults);
+      setOpenSnackbar(true);
+      
+      // Öffne Debug-Dialog nur bei kritischen Fehlern
+      const criticalFailures = testResults.filter(result => 
+        result.includes('Fehler') && !result.includes('Optional-Fehler')
+      );
+      
+      if (criticalFailures.length > 0) {
+        setOpenDebugDialog(true);
+      }
+
+    } catch (err) {
+      console.error('Umfassender Backend-Kommunikationsfehler:', err);
+      setBackendTestResult('Schwerwiegender Fehler bei der Backend-Kommunikation');
+      setDebugDetails(err);
+      setOpenSnackbar(true);
+      setOpenDebugDialog(true);
+    }
+  };
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -268,6 +249,14 @@ function App() {
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
     }
+  };
+
+  const handleCloseSnackbar = () => {
+    setOpenSnackbar(false);
+  };
+
+  const handleDebugDialogClose = () => {
+    setOpenDebugDialog(false);
   };
 
   if (!isLoggedIn) {
@@ -329,15 +318,70 @@ function App() {
           </Button>
           
           {xmlData && (
-            <Button variant="contained" onClick={handleDownload}>
-              {t('XMLHerunterladen')}
-            </Button>
+            <>
+              <Button variant="contained" onClick={handleDownload} sx={{ mr: 2 }}>
+                {t('XMLHerunterladen')}
+              </Button>
+              <Button variant="contained" color="secondary" onClick={testBackendCommunication}>
+                Backend testen
+              </Button>
+            </>
           )}
         </Paper>
 
         {xmlData && (
           <WorkflowContainer />
         )}
+
+        <Snackbar 
+          open={openSnackbar} 
+          autoHideDuration={6000} 
+          onClose={handleCloseSnackbar}
+          anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+        >
+          <Alert 
+            onClose={handleCloseSnackbar} 
+            severity={backendTestResult?.includes('Fehler') ? 'error' : 'success'}
+            sx={{ width: '100%' }}
+          >
+            {backendTestResult}
+          </Alert>
+        </Snackbar>
+
+        <Dialog
+          open={openDebugDialog}
+          onClose={handleDebugDialogClose}
+          aria-labelledby="debug-dialog-title"
+          aria-describedby="debug-dialog-description"
+          maxWidth="md"
+          fullWidth
+        >
+          <DialogTitle id="debug-dialog-title">{"Backend Kommunikationsfehler"}</DialogTitle>
+          <DialogContent>
+            <DialogContentText id="debug-dialog-description">
+              <Typography variant="body2" color="error" component="div">
+                Detaillierte Fehlerinformationen:
+              </Typography>
+              <Box component="pre" sx={{ 
+                backgroundColor: '#f0f0f0', 
+                padding: '10px', 
+                borderRadius: '5px', 
+                overflowX: 'auto',
+                maxHeight: '400px',
+                overflowY: 'auto'
+              }}>
+                {typeof debugDetails === 'object' 
+                  ? JSON.stringify(debugDetails, null, 2) 
+                  : debugDetails}
+              </Box>
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleDebugDialogClose} color="primary" autoFocus>
+              Schließen
+            </Button>
+          </DialogActions>
+        </Dialog>
       </Box>
     </Container>
   );
