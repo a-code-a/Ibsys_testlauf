@@ -10,11 +10,16 @@ import {
   TextField,
   Tabs,
   Tab,
-  Box
+  Box,
+  Button,
+  CircularProgress,
+  Snackbar,
+  Alert
 } from '@mui/material';
 import { useWorkflowStore } from '../store/workflowStore';
 import { useTranslation } from 'react-i18next';
 import { MaterialPlanningData, MaterialRowData } from '../types/WorkflowTypes';
+import { ApiService } from '../services/apiService';
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -59,32 +64,39 @@ export default function MaterialPlanning({ forecast, warehousestock }: MaterialP
   const { t } = useTranslation();
   const { setMaterialPlanningData } = useWorkflowStore();
   const [tabValue, setTabValue] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
   
-  const getInitialData = (productId: string): MaterialRowData[] => {
-    const productData = {
-      'P1': [
-        { id: 'P1', name: 'P1', auftrag: '200', vorherige: '0', sicherheit: '100', lager: '100', warteschlange: '0', laufend: '0', produktion: '200' },
-        { id: 'E261', name: 'E261', auftrag: '200', vorherige: '0', sicherheit: '100', lager: '50', warteschlange: '0', laufend: '0', produktion: '250' },
-        // ... andere Artikel für P1
-      ],
-      'P2': [
-        { id: 'P2', name: 'P2', auftrag: '150', vorherige: '0', sicherheit: '50', lager: '100', warteschlange: '0', laufend: '0', produktion: '100' },
-        { id: 'E262', name: 'E262', auftrag: '150', vorherige: '0', sicherheit: '50', lager: '50', warteschlange: '0', laufend: '0', produktion: '200' },
-        // ... andere Artikel für P2
-      ],
-      'P3': [
-        { id: 'P3', name: 'P3', auftrag: '250', vorherige: '0', sicherheit: '50', lager: '50', warteschlange: '0', laufend: '0', produktion: '250' },
-        { id: 'E263', name: 'E263', auftrag: '250', vorherige: '0', sicherheit: '50', lager: '50', warteschlange: '0', laufend: '0', produktion: '300' },
-        // ... andere Artikel für P3
-      ]
+  const [p1Data, setP1Data] = useState<MaterialRowData[]>([]);
+  const [p2Data, setP2Data] = useState<MaterialRowData[]>([]);
+  const [p3Data, setP3Data] = useState<MaterialRowData[]>([]);
+
+  useEffect(() => {
+    const fetchMaterialPlan = async () => {
+      try {
+        setLoading(true);
+        const data = await ApiService.getMaterialPlan();
+        
+        // Daten nach Produkten aufteilen
+        const p1Items = data.filter((item: MaterialRowData) => item.id.startsWith('P1') || item.id === 'E261');
+        const p2Items = data.filter((item: MaterialRowData) => item.id.startsWith('P2') || item.id === 'E262');
+        const p3Items = data.filter((item: MaterialRowData) => item.id.startsWith('P3') || item.id === 'E263');
+
+        setP1Data(p1Items);
+        setP2Data(p2Items);
+        setP3Data(p3Items);
+        
+        setLoading(false);
+      } catch (err) {
+        console.error('Fehler beim Laden der Materialplanung:', err);
+        setError(t('FehlerBeimLadenDerMaterialplanung'));
+        setLoading(false);
+      }
     };
 
-    return productData[productId as keyof typeof productData] || [];
-  };
-
-  const [p1Data, setP1Data] = useState(getInitialData('P1'));
-  const [p2Data, setP2Data] = useState(getInitialData('P2'));
-  const [p3Data, setP3Data] = useState(getInitialData('P3'));
+    fetchMaterialPlan();
+  }, [t]);
 
   useEffect(() => {
     const allData: MaterialPlanningData = {
@@ -94,7 +106,6 @@ export default function MaterialPlanning({ forecast, warehousestock }: MaterialP
         ...p3Data
       ]
     };
-    console.log('Setze Material Planning Daten:', allData);
     setMaterialPlanningData(allData);
   }, [p1Data, p2Data, p3Data, setMaterialPlanningData]);
 
@@ -110,6 +121,34 @@ export default function MaterialPlanning({ forecast, warehousestock }: MaterialP
       return row;
     });
     setData(newData);
+  };
+
+  const handleSave = async () => {
+    try {
+      // Konvertiere die Daten in das Backend-Format
+      const backendData = [...p1Data, ...p2Data, ...p3Data].map(item => ({
+        delivery_time_fast: parseFloat(item.auftrag) || 0,
+        delivery_time_jit_with_deviation: 0, // Default-Wert
+        delivery_time_with_deviation: 0, // Default-Wert
+        discount_quantity: parseInt(item.sicherheit) || 0,
+        future_period_amount: parseInt(item.lager) || 0,
+        future_period_arrival: parseFloat(item.warteschlange) || 0,
+        initial_stock: parseInt(item.laufend) || 0,
+        item_number: parseInt(item.id.replace(/[^\d]/g, '')) || 0,
+        order_quantity: parseInt(item.produktion) || 0,
+        order_type: 0, // Default-Wert
+        requirement_n: parseInt(item.auftrag) || 0,
+        requirement_n_plus_one: parseInt(item.vorherige) || 0,
+        requirement_n_plus_two: parseInt(item.sicherheit) || 0,
+        requirement_n_plus_three: parseInt(item.lager) || 0
+      }));
+
+      await ApiService.saveMaterialPlan(backendData);
+      setSuccessMessage(t('MaterialplanungErfolgreichGespeichert'));
+    } catch (err) {
+      console.error('Fehler beim Speichern der Materialplanung:', err);
+      setError(t('FehlerBeimSpeichernDerMaterialplanung'));
+    }
   };
 
   const renderMaterialTable = (data: MaterialRowData[], setData: React.Dispatch<React.SetStateAction<MaterialRowData[]>>) => (
@@ -199,6 +238,14 @@ export default function MaterialPlanning({ forecast, warehousestock }: MaterialP
     </TableContainer>
   );
 
+  if (loading) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
+
   return (
     <Paper sx={{ width: '100%' }}>
       <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
@@ -218,6 +265,36 @@ export default function MaterialPlanning({ forecast, warehousestock }: MaterialP
       <TabPanel value={tabValue} index={2}>
         {renderMaterialTable(p3Data, setP3Data)}
       </TabPanel>
+
+      <Box sx={{ p: 2, display: 'flex', justifyContent: 'flex-end' }}>
+        <Button 
+          variant="contained" 
+          color="primary" 
+          onClick={handleSave}
+        >
+          {t('Speichern')}
+        </Button>
+      </Box>
+
+      <Snackbar 
+        open={!!error} 
+        autoHideDuration={6000} 
+        onClose={() => setError(null)}
+      >
+        <Alert severity="error" onClose={() => setError(null)}>
+          {error}
+        </Alert>
+      </Snackbar>
+
+      <Snackbar 
+        open={!!successMessage} 
+        autoHideDuration={6000} 
+        onClose={() => setSuccessMessage(null)}
+      >
+        <Alert severity="success" onClose={() => setSuccessMessage(null)}>
+          {successMessage}
+        </Alert>
+      </Snackbar>
     </Paper>
   );
 }

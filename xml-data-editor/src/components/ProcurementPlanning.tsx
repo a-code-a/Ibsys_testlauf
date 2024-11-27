@@ -8,11 +8,16 @@ import {
   TableHead, 
   TableRow,
   TextField,
-  Box
+  Box,
+  Button,
+  CircularProgress,
+  Snackbar,
+  Alert
 } from '@mui/material';
 import { useWorkflowStore } from '../store/workflowStore';
 import { useTranslation } from 'react-i18next';
 import { ProcurementPlanningData, ProcurementItem } from '../types/WorkflowTypes';
+import { ApiService } from '../services/apiService';
 
 const getTrafficLightColor = (lagerbestand: string | undefined, bedarf: string | undefined): string => {
   const lagerbestandNum = parseFloat(lagerbestand || '0');
@@ -30,65 +35,32 @@ const getTrafficLightColor = (lagerbestand: string | undefined, bedarf: string |
 export default function ProcurementPlanning() {
   const { t } = useTranslation();
   const { setProcurementPlanningData } = useWorkflowStore();
-  const [procurementItems, setProcurementItems] = useState<ProcurementItem[]>([
-    {
-      produkt: "P1",
-      lieferzeit: "1.8",
-      abweichung: "0.4",
-      anzahlP1: "1",
-      anzahlP2: "0",
-      anzahlP3: "0",
-      rabattMenge: "300",
-      lagerbestand: "100",
-      bedarfPeriodeX: "200",
-      bedarfPeriodeX1: "0",
-      bedarfPeriodeX2: "0",
-      bedarfPeriodeX3: "0",
-      bestellmenge: "300",
-      bestelltyp: "Normal",
-      ausstehendeBestellung: "0"
-    },
-    {
-      produkt: "P2",
-      lieferzeit: "1.8",
-      abweichung: "0.4",
-      anzahlP1: "0",
-      anzahlP2: "1",
-      anzahlP3: "0",
-      rabattMenge: "300",
-      lagerbestand: "50",
-      bedarfPeriodeX: "150",
-      bedarfPeriodeX1: "0",
-      bedarfPeriodeX2: "0",
-      bedarfPeriodeX3: "0",
-      bestellmenge: "300",
-      bestelltyp: "Normal",
-      ausstehendeBestellung: "0"
-    },
-    {
-      produkt: "P3",
-      lieferzeit: "1.8",
-      abweichung: "0.4",
-      anzahlP1: "0",
-      anzahlP2: "0",
-      anzahlP3: "1",
-      rabattMenge: "300",
-      lagerbestand: "50",
-      bedarfPeriodeX: "100",
-      bedarfPeriodeX1: "0",
-      bedarfPeriodeX2: "0",
-      bedarfPeriodeX3: "0",
-      bestellmenge: "300",
-      bestelltyp: "Normal",
-      ausstehendeBestellung: "0"
-    }
-  ]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [procurementItems, setProcurementItems] = useState<ProcurementItem[]>([]);
+
+  useEffect(() => {
+    const fetchProcurementPlan = async () => {
+      try {
+        setLoading(true);
+        const data = await ApiService.getProcurementPlan();
+        setProcurementItems(data.items || []);
+        setLoading(false);
+      } catch (err) {
+        console.error('Fehler beim Laden der Beschaffungsplanung:', err);
+        setError(t('FehlerBeimLadenDerBeschaffungsplanung'));
+        setLoading(false);
+      }
+    };
+
+    fetchProcurementPlan();
+  }, [t]);
 
   useEffect(() => {
     const data: ProcurementPlanningData = { 
       items: procurementItems 
     };
-    console.log('Setze Procurement Planning Daten:', data);
     setProcurementPlanningData(data);
   }, [procurementItems, setProcurementPlanningData]);
 
@@ -97,6 +69,42 @@ export default function ProcurementPlanning() {
     newItems[index] = { ...newItems[index], [field]: value };
     setProcurementItems(newItems);
   };
+
+  const handleSave = async () => {
+    try {
+      // Konvertiere die Daten in das Backend-Format
+      const backendData = procurementItems.map(item => ({
+        delivery_time_fast: parseFloat(item.lieferzeit) || 0,
+        delivery_time_jit_with_deviation: parseFloat(item.abweichung) || 0,
+        delivery_time_with_deviation: parseFloat(item.abweichung) || 0,
+        discount_quantity: parseInt(item.rabattMenge) || 0,
+        future_period_amount: parseInt(item.bestellmenge) || 0,
+        future_period_arrival: parseFloat(item.lieferzeit) || 0,
+        initial_stock: parseInt(item.lagerbestand) || 0,
+        item_number: parseInt(item.produkt.replace(/[^\d]/g, '')) || 0,
+        order_quantity: parseInt(item.bestellmenge) || 0,
+        order_type: parseInt(item.bestelltyp) || 0,
+        requirement_n: parseInt(item.bedarfPeriodeX) || 0,
+        requirement_n_plus_one: parseInt(item.bedarfPeriodeX1) || 0,
+        requirement_n_plus_two: parseInt(item.bedarfPeriodeX2) || 0,
+        requirement_n_plus_three: parseInt(item.bedarfPeriodeX3) || 0
+      }));
+
+      await ApiService.saveProcurementPlan(backendData);
+      setSuccessMessage(t('BeschaffungsplanungErfolgreichGespeichert'));
+    } catch (err) {
+      console.error('Fehler beim Speichern der Beschaffungsplanung:', err);
+      setError(t('FehlerBeimSpeichernDerBeschaffungsplanung'));
+    }
+  };
+
+  if (loading) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
 
   return (
     <Paper sx={{ width: '100%', overflow: 'auto' }}>
@@ -240,6 +248,36 @@ export default function ProcurementPlanning() {
           </TableBody>
         </Table>
       </TableContainer>
+
+      <Box sx={{ p: 2, display: 'flex', justifyContent: 'flex-end' }}>
+        <Button 
+          variant="contained" 
+          color="primary" 
+          onClick={handleSave}
+        >
+          {t('Speichern')}
+        </Button>
+      </Box>
+
+      <Snackbar 
+        open={!!error} 
+        autoHideDuration={6000} 
+        onClose={() => setError(null)}
+      >
+        <Alert severity="error" onClose={() => setError(null)}>
+          {error}
+        </Alert>
+      </Snackbar>
+
+      <Snackbar 
+        open={!!successMessage} 
+        autoHideDuration={6000} 
+        onClose={() => setSuccessMessage(null)}
+      >
+        <Alert severity="success" onClose={() => setSuccessMessage(null)}>
+          {successMessage}
+        </Alert>
+      </Snackbar>
     </Paper>
   );
 }

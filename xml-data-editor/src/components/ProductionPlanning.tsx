@@ -11,38 +11,59 @@ import {
   Button,
   Radio,
   IconButton,
-  Box
+  Box,
+  CircularProgress,
+  Snackbar,
+  Alert
 } from '@mui/material';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import { useWorkflowStore } from '../store/workflowStore';
 import { useTranslation } from 'react-i18next';
-import { ProductionPlanningData, OrderItem } from '../types/WorkflowTypes';
+import { ProductionPlanningData, OrderItem, OrderResult } from '../types/WorkflowTypes';
+import { ApiService } from '../services/apiService';
 
 export default function ProductionPlanning() {
   const { t } = useTranslation();
   const { setProductionPlanningData } = useWorkflowStore();
-  const [orders, setOrders] = useState<OrderItem[]>([
-    { id: '1', articleNumber: '16', amount: 130, selected: false },
-    { id: '2', articleNumber: '17', amount: 450, selected: false },
-    { id: '3', articleNumber: '26', amount: 270, selected: false },
-    { id: '4', articleNumber: '8', amount: 50, selected: false },
-    { id: '5', articleNumber: '14', amount: 40, selected: false },
-    { id: '6', articleNumber: '19', amount: 80, selected: false },
-    { id: '7', articleNumber: '4', amount: 200, selected: false },
-    { id: '8', articleNumber: '10', amount: 150, selected: false },
-    { id: '9', articleNumber: '49', amount: 200, selected: false },
-    { id: '10', articleNumber: '5', amount: 150, selected: false },
-    { id: '11', articleNumber: '11', amount: 60, selected: false },
-    { id: '12', articleNumber: '54', amount: 150, selected: false },
-    { id: '13', articleNumber: '6', amount: 40, selected: false },
-    { id: '14', articleNumber: '29', amount: 100, selected: false }
-  ]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [orders, setOrders] = useState<OrderItem[]>([]);
 
-  // Aktualisiere die Daten im Store
+  useEffect(() => {
+    const fetchProductionOrders = async () => {
+      try {
+        setLoading(true);
+        const data = await ApiService.getProductionOrders();
+        
+        // Konvertiere Backend-Daten in Frontend-Format
+        const frontendOrders: OrderItem[] = (data.orders || []).map((order: OrderResult) => ({
+          id: order.id,
+          articleNumber: order.article,
+          amount: order.amount,
+          selected: false,
+          firstBatch: 1,
+          lastBatch: 1,
+          period: 1,
+          timeNeed: 0,
+          workplaceId: 1
+        }));
+
+        setOrders(frontendOrders);
+        setLoading(false);
+      } catch (err) {
+        console.error('Fehler beim Laden der Produktionsaufträge:', err);
+        setError(t('FehlerBeimLadenDerProduktionsauftraege'));
+        setLoading(false);
+      }
+    };
+
+    fetchProductionOrders();
+  }, [t]);
+
   useEffect(() => {
     const data: ProductionPlanningData = { orders };
-    console.log('Setze Production Planning Daten:', data);
     setProductionPlanningData(data);
   }, [orders, setProductionPlanningData]);
 
@@ -80,9 +101,39 @@ export default function ProductionPlanning() {
     setOrders(newOrders);
   };
 
+  const handleSave = async () => {
+    try {
+      // Konvertiere Frontend-Daten in Backend-Format
+      const backendData = orders.map((order, index) => ({
+        amount: order.amount,
+        firstbatch: order.firstBatch || 1,
+        item: parseInt(order.articleNumber.replace(/\D/g, '')) || 0,
+        lastbatch: order.lastBatch || 1,
+        order_number: index + 1,
+        period: order.period || 1,
+        timeneed: order.timeNeed || 0,
+        workplace_fk: order.workplaceId || 1
+      }));
+
+      await ApiService.saveProductionOrders(backendData);
+      setSuccessMessage(t('ProduktionsauftraegeErfolgreichGespeichert'));
+    } catch (err) {
+      console.error('Fehler beim Speichern der Produktionsaufträge:', err);
+      setError(t('FehlerBeimSpeichernDerProduktionsauftraege'));
+    }
+  };
+
+  if (loading) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
+
   return (
     <Paper sx={{ width: '100%', overflow: 'auto' }}>
-      <Box sx={{ p: 2 }}>
+      <Box sx={{ p: 2, display: 'flex', gap: 2 }}>
         <Button 
           variant="contained" 
           color="primary" 
@@ -90,6 +141,13 @@ export default function ProductionPlanning() {
           disabled={!orders.some(order => order.selected)}
         >
           {t('BestellungAufteilen')}
+        </Button>
+        <Button 
+          variant="contained" 
+          color="primary" 
+          onClick={handleSave}
+        >
+          {t('Speichern')}
         </Button>
       </Box>
       
@@ -101,6 +159,11 @@ export default function ProductionPlanning() {
               <TableCell width="50px">{t('Auswählen')}</TableCell>
               <TableCell>{t('Artikelnummer')}</TableCell>
               <TableCell>{t('Menge')}</TableCell>
+              <TableCell>{t('ErsterBatch')}</TableCell>
+              <TableCell>{t('LetzterBatch')}</TableCell>
+              <TableCell>{t('Periode')}</TableCell>
+              <TableCell>{t('Zeitbedarf')}</TableCell>
+              <TableCell>{t('Arbeitsplatz')}</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -159,11 +222,111 @@ export default function ProductionPlanning() {
                     }}
                   />
                 </TableCell>
+                <TableCell>
+                  <TextField
+                    value={order.firstBatch}
+                    size="small"
+                    type="number"
+                    onChange={(e) => {
+                      const newOrders = [...orders];
+                      const index = newOrders.findIndex(o => o.id === order.id);
+                      newOrders[index] = {
+                        ...newOrders[index],
+                        firstBatch: Number(e.target.value)
+                      };
+                      setOrders(newOrders);
+                    }}
+                  />
+                </TableCell>
+                <TableCell>
+                  <TextField
+                    value={order.lastBatch}
+                    size="small"
+                    type="number"
+                    onChange={(e) => {
+                      const newOrders = [...orders];
+                      const index = newOrders.findIndex(o => o.id === order.id);
+                      newOrders[index] = {
+                        ...newOrders[index],
+                        lastBatch: Number(e.target.value)
+                      };
+                      setOrders(newOrders);
+                    }}
+                  />
+                </TableCell>
+                <TableCell>
+                  <TextField
+                    value={order.period}
+                    size="small"
+                    type="number"
+                    onChange={(e) => {
+                      const newOrders = [...orders];
+                      const index = newOrders.findIndex(o => o.id === order.id);
+                      newOrders[index] = {
+                        ...newOrders[index],
+                        period: Number(e.target.value)
+                      };
+                      setOrders(newOrders);
+                    }}
+                  />
+                </TableCell>
+                <TableCell>
+                  <TextField
+                    value={order.timeNeed}
+                    size="small"
+                    type="number"
+                    onChange={(e) => {
+                      const newOrders = [...orders];
+                      const index = newOrders.findIndex(o => o.id === order.id);
+                      newOrders[index] = {
+                        ...newOrders[index],
+                        timeNeed: Number(e.target.value)
+                      };
+                      setOrders(newOrders);
+                    }}
+                  />
+                </TableCell>
+                <TableCell>
+                  <TextField
+                    value={order.workplaceId}
+                    size="small"
+                    type="number"
+                    onChange={(e) => {
+                      const newOrders = [...orders];
+                      const index = newOrders.findIndex(o => o.id === order.id);
+                      newOrders[index] = {
+                        ...newOrders[index],
+                        workplaceId: Number(e.target.value)
+                      };
+                      setOrders(newOrders);
+                    }}
+                  />
+                </TableCell>
               </TableRow>
             ))}
           </TableBody>
         </Table>
       </TableContainer>
+
+      <Snackbar 
+        open={!!error} 
+        autoHideDuration={6000} 
+        onClose={() => setError(null)}
+      >
+        <Alert severity="error" onClose={() => setError(null)}>
+          {error}
+        </Alert>
+      </Snackbar>
+
+      <Snackbar 
+        open={!!successMessage} 
+        autoHideDuration={6000} 
+        onClose={() => setSuccessMessage(null)}
+      >
+        <Alert severity="success" onClose={() => setSuccessMessage(null)}>
+          {successMessage}
+        </Alert>
+      </Snackbar>
     </Paper>
   );
 }

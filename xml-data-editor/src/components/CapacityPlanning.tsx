@@ -8,15 +8,23 @@ import {
   TableHead, 
   TableRow,
   TextField,
-  Box
+  Box,
+  Button,
+  CircularProgress,
+  Snackbar,
+  Alert
 } from '@mui/material';
 import { useWorkflowStore } from '../store/workflowStore';
 import { useTranslation } from 'react-i18next';
 import { CapacityPlanningData, ProductionItem, WorkstationData } from '../types/WorkflowTypes';
+import { ApiService } from '../services/apiService';
 
 export default function CapacityPlanning() {
   const { t } = useTranslation();
   const { setCapacityPlanningData } = useWorkflowStore();
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   const initWorkstations = () => {
     const ws: {[key: number]: string} = {};
@@ -26,50 +34,41 @@ export default function CapacityPlanning() {
     return ws;
   };
 
-  const [productionItems, setProductionItems] = useState<ProductionItem[]>([
-    {
-      bezeichnung: "Hinterrad",
-      finalesProdukt: "P1",
-      artikelnummer: "E4",
-      produktionsmenge: "200",
-      workstations: {...initWorkstations()}
-    },
-    {
-      bezeichnung: "Hinterrad",
-      finalesProdukt: "P2",
-      artikelnummer: "E5",
-      produktionsmenge: "150",
-      workstations: {...initWorkstations()}
-    }
-  ]);
+  const [productionItems, setProductionItems] = useState<ProductionItem[]>([]);
+  const [workstationData, setWorkstationData] = useState<WorkstationData[]>([]);
 
-  const [workstationData, setWorkstationData] = useState<WorkstationData[]>([
-    {
-      id: 1,
-      capacityRequirements: "2700",
-      setupTimes: "60",
-      capacityPreviousPeriods: "0",
-      totalCapacityRequirements: "2760",
-      overtimes: "360",
-      overtimePerDays: "72"
-    },
-    {
-      id: 2,
-      capacityRequirements: "2250",
-      setupTimes: "90",
-      capacityPreviousPeriods: "0",
-      totalCapacityRequirements: "2340",
-      overtimes: "0",
-      overtimePerDays: "0"
-    }
-  ]);
+  useEffect(() => {
+    const fetchCapacityPlan = async () => {
+      try {
+        setLoading(true);
+        const [capacityData, sumUpData] = await Promise.all([
+          ApiService.getCapacityPlan(),
+          ApiService.getCapacityPlanSumUp()
+        ]);
+
+        if (capacityData?.productionItems) {
+          setProductionItems(capacityData.productionItems);
+        }
+        if (sumUpData?.workstationData) {
+          setWorkstationData(sumUpData.workstationData);
+        }
+
+        setLoading(false);
+      } catch (err) {
+        console.error('Fehler beim Laden der Kapazitätsplanung:', err);
+        setError(t('FehlerBeimLadenDerKapazitaetsplanung'));
+        setLoading(false);
+      }
+    };
+
+    fetchCapacityPlan();
+  }, [t]);
 
   useEffect(() => {
     const data: CapacityPlanningData = {
       productionItems,
       workstationData
     };
-    console.log('Setze Capacity Planning Daten:', data);
     setCapacityPlanningData(data);
   }, [productionItems, workstationData, setCapacityPlanningData]);
 
@@ -96,6 +95,62 @@ export default function CapacityPlanning() {
     });
     setWorkstationData(newData);
   };
+
+  const handleSave = async () => {
+    try {
+      // Konvertiere Produktionsdaten in das Backend-Format
+      const capacityPlanData = productionItems.map(item => ({
+        article: item.bezeichnung,
+        article_number: parseInt(item.artikelnummer),
+        quantity: parseInt(item.produktionsmenge),
+        workplace1: parseInt(item.workstations[1] || "0"),
+        workplace2: parseInt(item.workstations[2] || "0"),
+        workplace3: parseInt(item.workstations[3] || "0"),
+        workplace4: parseInt(item.workstations[4] || "0"),
+        workplace6: parseInt(item.workstations[6] || "0"),
+        workplace7: parseInt(item.workstations[7] || "0"),
+        workplace8: parseInt(item.workstations[8] || "0"),
+        workplace9: parseInt(item.workstations[9] || "0"),
+        workplace10: parseInt(item.workstations[10] || "0"),
+        workplace11: parseInt(item.workstations[11] || "0"),
+        workplace12: parseInt(item.workstations[12] || "0"),
+        workplace13: parseInt(item.workstations[13] || "0"),
+        workplace14: parseInt(item.workstations[14] || "0"),
+        workplace15: parseInt(item.workstations[15] || "0")
+      }));
+
+      // Konvertiere Arbeitsplatzdaten in das Backend-Format
+      const capacityPlanSumUpData = workstationData.map(station => ({
+        work_place_number: station.id,
+        capacity_requirement: parseInt(station.capacityRequirements),
+        capacity_requirement_backlog_prev_period: parseInt(station.capacityPreviousPeriods),
+        overtime_day: parseInt(station.overtimePerDays),
+        overtime_week: parseInt(station.overtimes),
+        setup_time: parseInt(station.setupTimes),
+        setup_time_backlog_prev_period: 0, // Default-Wert
+        shifts: 1, // Default-Wert
+        total_capacity_requirements: parseInt(station.totalCapacityRequirements)
+      }));
+
+      await Promise.all([
+        ApiService.saveCapacityPlan(capacityPlanData),
+        ApiService.saveCapacityPlanSumUp(capacityPlanSumUpData)
+      ]);
+      
+      setSuccessMessage(t('KapazitaetsplanungErfolgreichGespeichert'));
+    } catch (err) {
+      console.error('Fehler beim Speichern der Kapazitätsplanung:', err);
+      setError(t('FehlerBeimSpeichernDerKapazitaetsplanung'));
+    }
+  };
+
+  if (loading) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
 
   return (
     <Paper sx={{ width: '100%', overflow: 'auto' }}>
@@ -232,6 +287,36 @@ export default function CapacityPlanning() {
           </Table>
         </TableContainer>
       </Box>
+
+      <Box sx={{ p: 2, display: 'flex', justifyContent: 'flex-end' }}>
+        <Button 
+          variant="contained" 
+          color="primary" 
+          onClick={handleSave}
+        >
+          {t('Speichern')}
+        </Button>
+      </Box>
+
+      <Snackbar 
+        open={!!error} 
+        autoHideDuration={6000} 
+        onClose={() => setError(null)}
+      >
+        <Alert severity="error" onClose={() => setError(null)}>
+          {error}
+        </Alert>
+      </Snackbar>
+
+      <Snackbar 
+        open={!!successMessage} 
+        autoHideDuration={6000} 
+        onClose={() => setSuccessMessage(null)}
+      >
+        <Alert severity="success" onClose={() => setSuccessMessage(null)}>
+          {successMessage}
+        </Alert>
+      </Snackbar>
     </Paper>
   );
 }

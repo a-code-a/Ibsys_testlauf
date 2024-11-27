@@ -60,6 +60,7 @@
   "devDependencies": {
     "@types/i18next": "^13.0.0",
     "@types/i18next-browser-languagedetector": "^3.0.0",
-    "@types/react-i18next": "^8.1.0"
+    "@types/react-i18next": "^8.1.0",
+    "@types/uuid": "^10.0.0"
   }
 }

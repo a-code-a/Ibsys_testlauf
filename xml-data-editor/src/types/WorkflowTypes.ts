@@ -7,7 +7,7 @@ export interface ForecastData {
 export interface ProductItem {
     id: string;
     name: string;
-    periods?: {
+    periods: {
         [key: string]: {
             sales: string;
             production: string;
@@ -45,12 +45,25 @@ export interface MaterialRowData {
     produktion: string;
 }
 
+// Aktualisierte OrderResult und OrderItem Interfaces
+export interface OrderResult {
+    id: string;
+    article: string;
+    article_id: number;
+    amount: number;
+    order_type: number;
+}
+
 export interface OrderItem {
     id: string;
     articleNumber: string;
     amount: number;
     selected?: boolean;
-    [key: string]: any;
+    firstBatch?: number;
+    lastBatch?: number;
+    period?: number;
+    timeNeed?: number;
+    workplaceId?: number;
 }
 
 export interface ProcurementItem {
@@ -71,38 +84,65 @@ export interface ProcurementItem {
     ausstehendeBestellung: string;
 }
 
+export interface SaleAndProductionProgramItem {
+    id: string;
+    article: string;
+    pn: number;
+    pnplus_one: number;
+    pnplus_two: number;
+    pnplus_three: number;
+}
+
 export interface ProductionProgramData {
-    products?: ProductItem[];
-    [key: string]: any;
+    products: ProductItem[];
 }
 
 export interface MaterialPlanningData {
     items?: MaterialRowData[];
-    [key: string]: any;
 }
 
 export interface CapacityPlanningData {
     productionItems?: ProductionItem[];
     workstationData?: WorkstationData[];
-    [key: string]: any;
 }
 
 export interface ProcurementPlanningData {
     items?: ProcurementItem[];
-    [key: string]: any;
 }
 
 export interface ProductionPlanningData {
     orders?: OrderItem[];
-    [key: string]: any;
+}
+
+export interface ProductionProgramResult {
+    article: string;
+    pn: number;
+    pnplus_one: number;
+    pnplus_three: number;
+    pnplus_two: number;
+    id: string;
+}
+
+export interface ProductionPlanningResult {
+    article: string;
+    amount: number;
+    workplace_fk: number;
+}
+
+export interface CapacityPlanningResult {
+    workplace_number: number;
+    shifts: number;
+    overtime_day: number;
+    overtime_week: number;
+    setup_time: number;
+    capacity_requirement: number;
 }
 
 export interface ResultsData {
-    productionProgram?: any[];
-    orders?: any[];
-    productionPlanning?: any[];
-    capacityPlanning?: any[];
-    [key: string]: any;
+    productionProgram?: ProductionProgramResult[];
+    orders?: OrderResult[];
+    productionPlanning?: ProductionPlanningResult[];
+    capacityPlanning?: CapacityPlanningResult[];
 }
 
 export interface WorkflowState {

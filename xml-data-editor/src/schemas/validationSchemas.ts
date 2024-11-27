@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 export const productionProgramSchema = z.object({
   products: z.array(z.object({
-    id: z.string(),
+    id: z.string().uuid(),
     name: z.string(),
     periods: z.record(z.object({
       sales: z.string().regex(/^\d+$/, "Muss eine Zahl sein"),
@@ -73,27 +73,42 @@ export const productionPlanningSchema = z.object({
   }))
 });
 
+// Neues Schema für Backend-Datenvalidierung
+export const saleAndProductionProgramSchema = z.array(z.object({
+  id: z.string().uuid(),
+  article: z.string(),
+  pn: z.number().int().min(0),
+  pnplus_one: z.number().int().min(0),
+  pnplus_two: z.number().int().min(0),
+  pnplus_three: z.number().int().min(0)
+}));
+
 export const resultsSchema = z.object({
   productionProgram: z.array(z.object({
-    artikel: z.string(),
-    produktionsmenge: z.string().regex(/^\d+$/, "Muss eine Zahl sein"),
-    direktverkauf: z.string().regex(/^\d+$/, "Muss eine Zahl sein"),
-    verkaufsmenge: z.string().regex(/^\d+$/, "Muss eine Zahl sein"),
-    verkaufspreis: z.string().regex(/^\d+$/, "Muss eine Zahl sein"),
-    strafe: z.string().regex(/^\d+$/, "Muss eine Zahl sein")
+    article: z.string(),
+    pn: z.number().int(),
+    pnplus_one: z.number().int(),
+    pnplus_two: z.number().int(),
+    pnplus_three: z.number().int(),
+    id: z.string().uuid()
   })),
   orders: z.array(z.object({
-    artikel: z.string(),
-    menge: z.string(),
-    modus: z.string()
+    article: z.string(),
+    article_id: z.number().int(),
+    amount: z.number().int(),
+    order_type: z.number().int()
   })),
   productionPlanning: z.array(z.object({
-    artikel: z.string(),
-    menge: z.string().regex(/^\d+$/, "Muss eine Zahl sein")
+    article: z.string(),
+    amount: z.number().int(),
+    workplace_fk: z.number().int()
   })),
   capacityPlanning: z.array(z.object({
-    station: z.string(),
-    uberstunden: z.string().regex(/^\d+$/, "Muss eine Zahl sein"),
-    schicht: z.string().regex(/^\d+$/, "Muss eine Zahl sein")
+    workplace_number: z.number().int(),
+    shifts: z.number().int(),
+    overtime_day: z.number().int(),
+    overtime_week: z.number().int(),
+    setup_time: z.number().int(),
+    capacity_requirement: z.number().int()
   }))
 });

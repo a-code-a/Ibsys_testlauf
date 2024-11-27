@@ -10,11 +10,22 @@ import {
   Tabs,
   Tab,
   Box,
-  Typography
+  Button,
+  CircularProgress,
+  Snackbar,
+  Alert
 } from '@mui/material';
 import { useWorkflowStore } from '../store/workflowStore';
 import { useTranslation } from 'react-i18next';
-import { ResultsData } from '../types/WorkflowTypes';
+import { 
+  ResultsData, 
+  ProductionProgramResult,
+  OrderResult,
+  ProductionPlanningResult,
+  CapacityPlanningResult
+} from '../types/WorkflowTypes';
+import { ApiService } from '../services/apiService';
+import RefreshIcon from '@mui/icons-material/Refresh';
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -44,46 +55,51 @@ const Results: React.FC = () => {
   const { t } = useTranslation();
   const { setResultsData } = useWorkflowStore();
   const [tabValue, setTabValue] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
-  const [productionProgram, setProductionProgram] = useState<any[]>([
-    { artikel: 'P1', produktionsmenge: '200', direktverkauf: '0', verkaufsmenge: '200', verkaufspreis: '100', strafe: '0' },
-    { artikel: 'P2', produktionsmenge: '150', direktverkauf: '0', verkaufsmenge: '150', verkaufspreis: '100', strafe: '0' },
-    { artikel: 'P3', produktionsmenge: '250', direktverkauf: '0', verkaufsmenge: '250', verkaufspreis: '100', strafe: '0' }
-  ]);
+  const [productionProgram, setProductionProgram] = useState<ProductionProgramResult[]>([]);
+  const [orders, setOrders] = useState<OrderResult[]>([]);
+  const [productionPlanning, setProductionPlanning] = useState<ProductionPlanningResult[]>([]);
+  const [capacityPlanning, setCapacityPlanning] = useState<CapacityPlanningResult[]>([]);
 
-  const [orders, setOrders] = useState<any[]>([
-    { artikel: 'P1', menge: '200', modus: 'Normal' },
-    { artikel: 'P2', menge: '150', modus: 'Normal' },
-    { artikel: 'P3', menge: '250', modus: 'Normal' }
-  ]);
+  const fetchResults = async () => {
+    try {
+      setLoading(true);
+      const data = await ApiService.getResults();
+      
+      setProductionProgram(data.productionProgram || []);
+      setOrders(data.orders || []);
+      setProductionPlanning(data.productionPlanning || []);
+      setCapacityPlanning(data.capacityPlanning || []);
+      
+      setLoading(false);
+    } catch (err) {
+      console.error('Fehler beim Laden der Ergebnisse:', err);
+      setError(t('FehlerBeimLadenDerErgebnisse'));
+      setLoading(false);
+    }
+  };
 
-  const [productionPlanning, setProductionPlanning] = useState<any[]>([
-    { artikel: '16', menge: '130' },
-    { artikel: '17', menge: '450' },
-    { artikel: '26', menge: '270' },
-    { artikel: '8', menge: '50' },
-    { artikel: '14', menge: '40' },
-    { artikel: '19', menge: '80' },
-    { artikel: '4', menge: '200' }
-  ]);
+  const handleRefresh = async () => {
+    try {
+      setRefreshing(true);
+      await ApiService.refreshResults({});
+      await fetchResults();
+      setSuccessMessage(t('ErgebnisseErfolgreichAktualisiert'));
+      setRefreshing(false);
+    } catch (err) {
+      console.error('Fehler beim Aktualisieren der Ergebnisse:', err);
+      setError(t('FehlerBeimAktualisierenDerErgebnisse'));
+      setRefreshing(false);
+    }
+  };
 
-  const [capacityPlanning, setCapacityPlanning] = useState<any[]>([
-    { station: '1', uberstunden: '72', schicht: '1' },
-    { station: '2', uberstunden: '0', schicht: '1' },
-    { station: '3', uberstunden: '32', schicht: '1' },
-    { station: '4', uberstunden: '128', schicht: '1' },
-    { station: '5', uberstunden: '0', schicht: '0' },
-    { station: '6', uberstunden: '126', schicht: '1' },
-    { station: '7', uberstunden: '0', schicht: '3' },
-    { station: '8', uberstunden: '0', schicht: '3' },
-    { station: '9', uberstunden: '0', schicht: '3' },
-    { station: '10', uberstunden: '0', schicht: '2' },
-    { station: '11', uberstunden: '0', schicht: '2' },
-    { station: '12', uberstunden: '0', schicht: '2' },
-    { station: '13', uberstunden: '32', schicht: '1' },
-    { station: '14', uberstunden: '0', schicht: '1' },
-    { station: '15', uberstunden: '234', schicht: '1' }
-  ]);
+  useEffect(() => {
+    fetchResults();
+  }, []);
 
   useEffect(() => {
     const data: ResultsData = {
@@ -92,7 +108,6 @@ const Results: React.FC = () => {
       productionPlanning,
       capacityPlanning
     };
-    console.log('Setze Results Daten:', data);
     setResultsData(data);
   }, [productionProgram, orders, productionPlanning, capacityPlanning, setResultsData]);
 
@@ -100,22 +115,26 @@ const Results: React.FC = () => {
     setTabValue(newValue);
   };
 
-  const renderTable = (data: any[], columns: string[]) => (
+  const renderProductionProgramTable = (data: ProductionProgramResult[]) => (
     <TableContainer>
       <Table size="small">
         <TableHead>
           <TableRow>
-            {columns.map((column) => (
-              <TableCell key={column}>{t(column)}</TableCell>
-            ))}
+            <TableCell>{t('Artikel')}</TableCell>
+            <TableCell>{t('AktuelleProduktion')}</TableCell>
+            <TableCell>{t('ProduktionN1')}</TableCell>
+            <TableCell>{t('ProduktionN2')}</TableCell>
+            <TableCell>{t('ProduktionN3')}</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
           {data.map((row, index) => (
             <TableRow key={index}>
-              {Object.values(row).map((value, cellIndex) => (
-                <TableCell key={cellIndex}>{value as string}</TableCell>
-              ))}
+              <TableCell>{row.article}</TableCell>
+              <TableCell>{row.pn}</TableCell>
+              <TableCell>{row.pnplus_one}</TableCell>
+              <TableCell>{row.pnplus_two}</TableCell>
+              <TableCell>{row.pnplus_three}</TableCell>
             </TableRow>
           ))}
         </TableBody>
@@ -123,32 +142,145 @@ const Results: React.FC = () => {
     </TableContainer>
   );
 
+  const renderOrdersTable = (data: OrderResult[]) => (
+    <TableContainer>
+      <Table size="small">
+        <TableHead>
+          <TableRow>
+            <TableCell>{t('Artikel')}</TableCell>
+            <TableCell>{t('ArtikelNummer')}</TableCell>
+            <TableCell>{t('Menge')}</TableCell>
+            <TableCell>{t('Bestelltyp')}</TableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {data.map((row, index) => (
+            <TableRow key={index}>
+              <TableCell>{row.article}</TableCell>
+              <TableCell>{row.article_id}</TableCell>
+              <TableCell>{row.amount}</TableCell>
+              <TableCell>{row.order_type}</TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </TableContainer>
+  );
+
+  const renderProductionPlanningTable = (data: ProductionPlanningResult[]) => (
+    <TableContainer>
+      <Table size="small">
+        <TableHead>
+          <TableRow>
+            <TableCell>{t('Artikel')}</TableCell>
+            <TableCell>{t('Menge')}</TableCell>
+            <TableCell>{t('Arbeitsplatz')}</TableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {data.map((row, index) => (
+            <TableRow key={index}>
+              <TableCell>{row.article}</TableCell>
+              <TableCell>{row.amount}</TableCell>
+              <TableCell>{row.workplace_fk}</TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </TableContainer>
+  );
+
+  const renderCapacityPlanningTable = (data: CapacityPlanningResult[]) => (
+    <TableContainer>
+      <Table size="small">
+        <TableHead>
+          <TableRow>
+            <TableCell>{t('ArbeitsplatzNummer')}</TableCell>
+            <TableCell>{t('Schichten')}</TableCell>
+            <TableCell>{t('ÜberstundenTag')}</TableCell>
+            <TableCell>{t('ÜberstundenWoche')}</TableCell>
+            <TableCell>{t('Rüstzeit')}</TableCell>
+            <TableCell>{t('Kapazitätsbedarf')}</TableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {data.map((row, index) => (
+            <TableRow key={index}>
+              <TableCell>{row.workplace_number}</TableCell>
+              <TableCell>{row.shifts}</TableCell>
+              <TableCell>{row.overtime_day}</TableCell>
+              <TableCell>{row.overtime_week}</TableCell>
+              <TableCell>{row.setup_time}</TableCell>
+              <TableCell>{row.capacity_requirement}</TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </TableContainer>
+  );
+
+  if (loading) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
+
   return (
     <Paper sx={{ width: '100%' }}>
-      <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+      <Box sx={{ borderBottom: 1, borderColor: 'divider', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <Tabs value={tabValue} onChange={handleTabChange}>
           <Tab label={t('ErgebnisseProduktionsprogramm')} />
           <Tab label={t('ErgebnisseBestellungen')} />
           <Tab label={t('ErgebnisseProduktionsplanung')} />
           <Tab label={t('ErgebnisseKapazitätsplanung')} />
         </Tabs>
+        <Button
+          startIcon={<RefreshIcon />}
+          onClick={handleRefresh}
+          disabled={refreshing}
+          sx={{ mr: 2 }}
+        >
+          {refreshing ? t('Aktualisiere...') : t('Aktualisieren')}
+        </Button>
       </Box>
 
       <TabPanel value={tabValue} index={0}>
-        {renderTable(productionProgram, ['Artikel', 'Produktionsmenge', 'Direktverkauf', 'Verkaufsmenge', 'Verkaufspreis', 'Strafe'])}
+        {renderProductionProgramTable(productionProgram)}
       </TabPanel>
 
       <TabPanel value={tabValue} index={1}>
-        {renderTable(orders, ['Artikel', 'Menge', 'Bestelltyp'])}
+        {renderOrdersTable(orders)}
       </TabPanel>
 
       <TabPanel value={tabValue} index={2}>
-        {renderTable(productionPlanning, ['Artikel', 'Menge'])}
+        {renderProductionPlanningTable(productionPlanning)}
       </TabPanel>
 
       <TabPanel value={tabValue} index={3}>
-        {renderTable(capacityPlanning, ['Station', 'Überstunden', 'Schicht'])}
+        {renderCapacityPlanningTable(capacityPlanning)}
       </TabPanel>
+
+      <Snackbar 
+        open={!!error} 
+        autoHideDuration={6000} 
+        onClose={() => setError(null)}
+      >
+        <Alert severity="error" onClose={() => setError(null)}>
+          {error}
+        </Alert>
+      </Snackbar>
+
+      <Snackbar 
+        open={!!successMessage} 
+        autoHideDuration={6000} 
+        onClose={() => setSuccessMessage(null)}
+      >
+        <Alert severity="success" onClose={() => setSuccessMessage(null)}>
+          {successMessage}
+        </Alert>
+      </Snackbar>
     </Paper>
   );
 };
