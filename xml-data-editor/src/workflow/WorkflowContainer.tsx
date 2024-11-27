@@ -16,12 +16,6 @@ import {
   productionPlanningSchema
 } from '../schemas/validationSchemas';
 
-const defaultForecast = {
-  _p1: "200",
-  _p2: "150",
-  _p3: "100"
-};
-
 export const WorkflowContainer: React.FC = () => {
   const { t } = useTranslation();
   const [validationError, setValidationError] = React.useState<string | null>(null);
@@ -32,7 +26,9 @@ export const WorkflowContainer: React.FC = () => {
     materialPlanningData,
     capacityPlanningData,
     procurementPlanningData,
-    productionPlanningData
+    productionPlanningData,
+    warehousestock,
+    forecast
   } = useWorkflowStore();
 
   const steps = [
@@ -46,12 +42,8 @@ export const WorkflowContainer: React.FC = () => {
 
   const handleNext = () => {
     setValidationError(null);
-    console.log('Validiere Schritt', currentStep, 'mit Daten:', getCurrentStepData());
     if (validateCurrentStep()) {
-      console.log('Validierung erfolgreich, gehe zu Schritt', currentStep + 1);
       setCurrentStep(currentStep + 1);
-    } else {
-      console.log('Validierung fehlgeschlagen');
     }
   };
 
@@ -79,7 +71,6 @@ export const WorkflowContainer: React.FC = () => {
 
   const validateCurrentStep = (): boolean => {
     const currentData = getCurrentStepData();
-    console.log('Aktuelle Daten für Validierung:', currentData);
     
     if (!currentData) {
       setValidationError('Keine Daten für diesen Schritt vorhanden');
@@ -109,10 +100,8 @@ export const WorkflowContainer: React.FC = () => {
       return true;
     } catch (error) {
       if (error instanceof Error) {
-        console.error('Validierungsfehler:', error);
         setValidationError(error.message);
       } else {
-        console.error('Unbekannter Validierungsfehler:', error);
         setValidationError('Ein Validierungsfehler ist aufgetreten');
       }
       return false;
@@ -124,14 +113,14 @@ export const WorkflowContainer: React.FC = () => {
       case 0:
         return (
           <ProductionProgram 
-            forecast={defaultForecast}
+            forecast={forecast || { _p1: "200", _p2: "150", _p3: "100" }}
           />
         );
       case 1:
         return (
           <MaterialPlanning 
-            forecast={defaultForecast}
-            warehousestock={{}}
+            forecast={forecast || { _p1: "200", _p2: "150", _p3: "100" }}
+            warehousestock={warehousestock || {}}
           />
         );
       case 2:

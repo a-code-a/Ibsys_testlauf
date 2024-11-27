@@ -18,6 +18,30 @@ export interface Results {
     }>;
     totalstockvalue: string;
   };
+  inwardstockmovement?: {
+    order: Array<{
+      orderperiod: string;
+      id: string;
+      mode: string;
+      article: string;
+      amount: string;
+      time: string;
+      materialcosts: string;
+      ordercosts: string;
+      entirecosts: string;
+      piececosts: string;
+    }>;
+  };
+  futureinwardstockmovement?: {
+    order: Array<{
+      orderperiod: string;
+      id: string;
+      mode: string;
+      article: string;
+      amount: string;
+    }>;
+  };
+  idletimecosts?: string;
 }
 
 export interface XMLData {

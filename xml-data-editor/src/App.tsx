@@ -9,7 +9,16 @@ import LanguageSelector from './components/LanguageSelector';
 
 function App() {
   const [xmlData, setXmlData] = useState<XMLData | null>(null);
-  const { setProductionProgramData } = useWorkflowStore();
+  const { 
+    setProductionProgramData, 
+    setMaterialPlanningData, 
+    setCapacityPlanningData, 
+    setProcurementPlanningData, 
+    setProductionPlanningData,
+    setResultsData,
+    setForecast,
+    setWarehousestock 
+  } = useWorkflowStore();
   const { t } = useTranslation();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [username, setUsername] = useState('');
@@ -25,9 +34,21 @@ function App() {
     }
   };
 
-  // Initialisiere die Daten, wenn xmlData sich ändert
+  // Initialisiere alle Workflow-Daten, wenn xmlData sich ändert
   useEffect(() => {
-    if (xmlData?.results?.forecast) {
+    if (xmlData?.results) {
+      // Forecast setzen
+      const forecast = {
+        _p1: xmlData.results.forecast._p1,
+        _p2: xmlData.results.forecast._p2,
+        _p3: xmlData.results.forecast._p3
+      };
+      setForecast(forecast);
+
+      // Warehousestock setzen
+      setWarehousestock(xmlData.results.warehousestock);
+
+      // 1. Produktionsprogramm
       const initialProductionProgram = {
         products: [
           {
@@ -62,11 +83,149 @@ function App() {
           }
         ]
       };
-
-      console.log('Setze initiale Produktionsprogramm-Daten:', initialProductionProgram);
       setProductionProgramData(initialProductionProgram);
+
+      // 2. Materialplanung
+      const initialMaterialPlanning = {
+        items: xmlData.results.warehousestock.article.map(article => ({
+          id: article._id,
+          name: `Artikel ${article._id}`,
+          auftrag: "0",
+          vorherige: article._startamount,
+          sicherheit: "0",
+          lager: article._amount,
+          warteschlange: "0",
+          laufend: "0",
+          produktion: "0"
+        }))
+      };
+      setMaterialPlanningData(initialMaterialPlanning);
+
+      // 3. Kapazitätsplanung (Platzhalter-Daten)
+      const initialCapacityPlanning = {
+        productionItems: [
+          {
+            bezeichnung: "Kinderrad",
+            finalesProdukt: "P1",
+            artikelnummer: "1",
+            produktionsmenge: xmlData.results.forecast._p1,
+            workstations: { 1: "10", 2: "20" }
+          },
+          {
+            bezeichnung: "Damenrad",
+            finalesProdukt: "P2",
+            artikelnummer: "2",
+            produktionsmenge: xmlData.results.forecast._p2,
+            workstations: { 1: "15", 2: "25" }
+          },
+          {
+            bezeichnung: "Herrenrad",
+            finalesProdukt: "P3",
+            artikelnummer: "3",
+            produktionsmenge: xmlData.results.forecast._p3,
+            workstations: { 1: "12", 2: "22" }
+          }
+        ],
+        workstationData: [
+          {
+            id: 1,
+            capacityRequirements: "100",
+            setupTimes: "20",
+            capacityPreviousPeriods: "50",
+            totalCapacityRequirements: "170",
+            overtimes: "10",
+            overtimePerDays: "2"
+          },
+          {
+            id: 2,
+            capacityRequirements: "120",
+            setupTimes: "25",
+            capacityPreviousPeriods: "60",
+            totalCapacityRequirements: "205",
+            overtimes: "15",
+            overtimePerDays: "3"
+          }
+        ]
+      };
+      setCapacityPlanningData(initialCapacityPlanning);
+
+      // 4. Beschaffungsplanung (Platzhalter-Daten)
+      const initialProcurementPlanning = {
+        items: xmlData.results.warehousestock.article.map(article => ({
+          produkt: article._id,
+          lieferzeit: "5",
+          abweichung: "1",
+          anzahlP1: "0",
+          anzahlP2: "0",
+          anzahlP3: "0",
+          rabattMenge: "100",
+          lagerbestand: article._amount,
+          bedarfPeriodeX: "0",
+          bedarfPeriodeX1: "0",
+          bedarfPeriodeX2: "0",
+          bedarfPeriodeX3: "0",
+          bestellmenge: "0",
+          bestelltyp: "0",
+          ausstehendeBestellung: "0"
+        }))
+      };
+      setProcurementPlanningData(initialProcurementPlanning);
+
+      // 5. Produktionsplanung (Platzhalter-Daten)
+      const initialProductionPlanning = {
+        orders: [
+          { id: "1", articleNumber: "P1", amount: parseInt(xmlData.results.forecast._p1), selected: false },
+          { id: "2", articleNumber: "P2", amount: parseInt(xmlData.results.forecast._p2), selected: false },
+          { id: "3", articleNumber: "P3", amount: parseInt(xmlData.results.forecast._p3), selected: false }
+        ]
+      };
+      setProductionPlanningData(initialProductionPlanning);
+
+      // 6. Ergebnisse (Platzhalter-Daten)
+      const initialResults = {
+        productionProgram: [
+          {
+            artikel: "P1",
+            produktionsmenge: xmlData.results.forecast._p1,
+            direktverkauf: "0",
+            verkaufsmenge: xmlData.results.forecast._p1,
+            verkaufspreis: "100",
+            strafe: "0"
+          },
+          {
+            artikel: "P2",
+            produktionsmenge: xmlData.results.forecast._p2,
+            direktverkauf: "0",
+            verkaufsmenge: xmlData.results.forecast._p2,
+            verkaufspreis: "150",
+            strafe: "0"
+          },
+          {
+            artikel: "P3",
+            produktionsmenge: xmlData.results.forecast._p3,
+            direktverkauf: "0",
+            verkaufsmenge: xmlData.results.forecast._p3,
+            verkaufspreis: "200",
+            strafe: "0"
+          }
+        ],
+        orders: [],
+        productionPlanning: [],
+        capacityPlanning: []
+      };
+      setResultsData(initialResults);
     }
-  }, [xmlData, setProductionProgramData]);
+  }, [
+    xmlData, 
+    setProductionProgramData, 
+    setMaterialPlanningData, 
+    setCapacityPlanningData, 
+    setProcurementPlanningData, 
+    setProductionPlanningData,
+    setResultsData,
+    setForecast,
+    setWarehousestock
+  ]);
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];

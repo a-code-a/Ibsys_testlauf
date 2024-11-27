@@ -6,7 +6,9 @@ import {
   CapacityPlanningData,
   ProcurementPlanningData,
   ProductionPlanningData,
-  ResultsData
+  ResultsData,
+  Forecast,
+  WarehouseStock
 } from '../types/WorkflowTypes';
 
 export const useWorkflowStore = create<WorkflowState>((set) => ({
@@ -17,6 +19,8 @@ export const useWorkflowStore = create<WorkflowState>((set) => ({
   procurementPlanningData: null,
   productionPlanningData: null,
   resultsData: null,
+  forecast: null,
+  warehousestock: null,
 
   setCurrentStep: (step: number) => set({ currentStep: step }),
   setProductionProgramData: (data: ProductionProgramData) => 
@@ -31,4 +35,8 @@ export const useWorkflowStore = create<WorkflowState>((set) => ({
     set({ productionPlanningData: data }),
   setResultsData: (data: ResultsData) => 
     set({ resultsData: data }),
+  setForecast: (forecast: Forecast) => 
+    set({ forecast }),
+  setWarehousestock: (warehousestock: WarehouseStock) => 
+    set({ warehousestock }),
 }));

@@ -98,6 +98,24 @@ export interface ResultsData {
   }>;
 }
 
+export interface Forecast {
+  _p1: string;
+  _p2: string;
+  _p3: string;
+}
+
+export interface WarehouseStock {
+  article: Array<{
+    _id: string;
+    _amount: string;
+    _startamount: string;
+    _pct: string;
+    _price: string;
+    _stockvalue: string;
+  }>;
+  totalstockvalue: string;
+}
+
 export interface WorkflowState {
   currentStep: number;
   productionProgramData: ProductionProgramData | null;
@@ -106,6 +124,8 @@ export interface WorkflowState {
   procurementPlanningData: ProcurementPlanningData | null;
   productionPlanningData: ProductionPlanningData | null;
   resultsData: ResultsData | null;
+  forecast: Forecast | null;
+  warehousestock: WarehouseStock | null;
   setCurrentStep: (step: number) => void;
   setProductionProgramData: (data: ProductionProgramData) => void;
   setMaterialPlanningData: (data: MaterialPlanningData) => void;
@@ -113,4 +133,6 @@ export interface WorkflowState {
   setProcurementPlanningData: (data: ProcurementPlanningData) => void;
   setProductionPlanningData: (data: ProductionPlanningData) => void;
   setResultsData: (data: ResultsData) => void;
+  setForecast: (forecast: Forecast) => void;
+  setWarehousestock: (warehousestock: WarehouseStock) => void;
 }
